@@ -4,485 +4,669 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Global Retail Sales Analysis</title>
+    <title>Global Retail Intelligence | Analytics Dashboard</title>
 
     <link rel="stylesheet" href="style.css">
 
-    <!-- Google Fonts -->
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Google Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
 
-    <!-- Navigation -->
+    <!-- NAVIGATION -->
     <nav class="navbar">
         <div class="nav-container">
 
-            <a href="#home" class="logo">
-                GLOBAL<span>RETAIL</span>
-            </a>
+            <div class="logo">
+                <span class="logo-dot"></span>
+                GLOBAL RETAIL
+            </div>
 
-            <ul class="nav-links">
-                <li><a href="#home">Home</a></li>
-                <li><a href="#overview">Overview</a></li>
-                <li><a href="#workflow">Workflow</a></li>
-                <li><a href="#insights">Insights</a></li>
-                <li><a href="#dashboard">Dashboard</a></li>
-            </ul>
+            <div class="nav-links">
+                <a href="#overview">Overview</a>
+                <a href="#analytics">Analytics</a>
+                <a href="#insights">Insights</a>
+                <a href="#recommendations">Recommendations</a>
+            </div>
+
+            <a href="https://github.com/kmmsinan-creator/global-retail-sales-analysis"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="github-btn">
+                View Project ↗
+            </a>
 
         </div>
     </nav>
 
 
-    <!-- Hero Section -->
-    <section id="home" class="hero">
+    <!-- HERO -->
+    <header class="hero">
 
         <div class="hero-content">
 
-            <p class="hero-tag">END-TO-END DATA ANALYTICS PROJECT</p>
+            <div class="badge">
+                BUSINESS INTELLIGENCE PROJECT
+            </div>
 
-            <h1>Global Retail<br><span>Sales Analysis</span></h1>
+            <h1>
+                Global Retail
+                <span>Performance Intelligence</span>
+            </h1>
 
             <p class="hero-description">
-                An end-to-end data analytics project transforming global retail
-                transaction data into actionable business insights using
-                Python, PostgreSQL, SQL, and Power BI.
+                An analytical exploration of four years of global retail transactions,
+                uncovering revenue growth drivers, profitability risks, seasonal patterns,
+                and market opportunities.
             </p>
 
-            <div class="hero-buttons">
+            <div class="hero-actions">
 
-                <!-- CHANGE THIS LINK AFTER PUBLISHING -->
-                <a href="https://github.com/kmmsinan-creator/global-retail-sales-analysis"
-                   class="btn btn-primary"
-                   target="_blank"
-                   rel="noopener noreferrer">
-                       View GitHub Repository
+                <a href="#overview" class="primary-btn">
+                    Explore Dashboard ↓
                 </a>
 
-                <a href="#dashboard" class="btn btn-secondary">
-                    Explore Dashboard
+                <a href="#insights" class="secondary-btn">
+                    View Key Insights
                 </a>
 
             </div>
 
         </div>
+
 
         <div class="hero-stats">
 
-            <div class="stat-card">
-                <h2>13M</h2>
-                <p>Total Sales</p>
+            <div class="mini-stat">
+                <span class="mini-label">Analysis Period</span>
+                <strong>2011 — 2014</strong>
             </div>
 
-            <div class="stat-card">
-                <h2>1.47M</h2>
-                <p>Total Profit</p>
+            <div class="mini-stat">
+                <span class="mini-label">Markets</span>
+                <strong>6 Global Markets</strong>
             </div>
 
-            <div class="stat-card">
-                <h2>25K</h2>
-                <p>Total Orders</p>
-            </div>
-
-            <div class="stat-card">
-                <h2>5K</h2>
-                <p>Customers</p>
+            <div class="mini-stat">
+                <span class="mini-label">Focus</span>
+                <strong>Profitability</strong>
             </div>
 
         </div>
 
-    </section>
+    </header>
 
 
-    <!-- Project Overview -->
-    <section id="overview" class="section">
+    <!-- MAIN -->
+    <main>
 
-        <div class="section-heading">
 
-            <p class="section-tag">PROJECT OVERVIEW</p>
+        <!-- OVERVIEW -->
+        <section id="overview" class="section">
 
-            <h2>Turning Data Into Business Insights</h2>
+            <div class="section-header">
 
-            <p>
-                This project analyzes global retail performance across sales,
-                profitability, customers, products, markets, and regions.
-                The objective was to build a complete analytics workflow
-                from raw data to an interactive business intelligence dashboard.
-            </p>
+                <div>
+                    <span class="eyebrow">EXECUTIVE OVERVIEW</span>
 
-        </div>
+                    <h2>Business Performance at a Glance</h2>
 
-
-        <div class="overview-grid">
-
-            <div class="overview-card">
-
-                <div class="icon">📊</div>
-
-                <h3>Business Analysis</h3>
-
-                <p>
-                    Analyzed sales, profits, markets, customer behavior,
-                    product performance, and seasonal trends.
-                </p>
-
-            </div>
-
-
-            <div class="overview-card">
-
-                <div class="icon">🧹</div>
-
-                <h3>Data Preparation</h3>
-
-                <p>
-                    Cleaned and transformed raw retail data using Python
-                    and Pandas for reliable analysis.
-                </p>
-
-            </div>
-
-
-            <div class="overview-card">
-
-                <div class="icon">🗄️</div>
-
-                <h3>SQL Analysis</h3>
-
-                <p>
-                    Used PostgreSQL and SQL queries to explore
-                    business performance and identify key trends.
-                </p>
-
-            </div>
-
-
-            <div class="overview-card">
-
-                <div class="icon">📈</div>
-
-                <h3>Power BI</h3>
-
-                <p>
-                    Built an interactive dashboard using data modeling,
-                    DAX measures, KPIs, and business visualizations.
-                </p>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- Workflow -->
-    <section id="workflow" class="workflow-section">
-
-        <div class="section-heading">
-
-            <p class="section-tag">ANALYTICS WORKFLOW</p>
-
-            <h2>From Raw Data to Insights</h2>
-
-        </div>
-
-
-        <div class="workflow-container">
-
-            <div class="workflow-step">
-                <div class="step-number">01</div>
-                <h3>Raw Data</h3>
-                <p>Global retail transaction dataset</p>
-            </div>
-
-            <div class="workflow-arrow">→</div>
-
-            <div class="workflow-step">
-                <div class="step-number">02</div>
-                <h3>Python</h3>
-                <p>Cleaning and feature engineering</p>
-            </div>
-
-            <div class="workflow-arrow">→</div>
-
-            <div class="workflow-step">
-                <div class="step-number">03</div>
-                <h3>PostgreSQL</h3>
-                <p>Structured data storage</p>
-            </div>
-
-            <div class="workflow-arrow">→</div>
-
-            <div class="workflow-step">
-                <div class="step-number">04</div>
-                <h3>SQL</h3>
-                <p>Business analysis queries</p>
-            </div>
-
-            <div class="workflow-arrow">→</div>
-
-            <div class="workflow-step">
-                <div class="step-number">05</div>
-                <h3>Power BI</h3>
-                <p>Dashboard and visualization</p>
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- Key Insights -->
-    <section id="insights" class="section insights-section">
-
-        <div class="section-heading">
-
-            <p class="section-tag">KEY FINDINGS</p>
-
-            <h2>Business Insights</h2>
-
-            <p>
-                The analysis revealed several important patterns across
-                global retail operations.
-            </p>
-
-        </div>
-
-
-        <div class="insights-grid">
-
-            <div class="insight-card">
-
-                <span>01</span>
-
-                <h3>Strong Growth</h3>
-
-                <p>
-                    Sales increased consistently between 2011 and 2014,
-                    with 2014 generating the highest overall performance.
-                </p>
-
-            </div>
-
-
-            <div class="insight-card">
-
-                <span>02</span>
-
-                <h3>Q4 Performance</h3>
-
-                <p>
-                    The fourth quarter generated the highest sales and profit,
-                    highlighting strong end-of-year demand.
-                </p>
-
-            </div>
-
-
-            <div class="insight-card">
-
-                <span>03</span>
-
-                <h3>APAC Leadership</h3>
-
-                <p>
-                    APAC emerged as the largest market by sales,
-                    making it a major contributor to global performance.
-                </p>
-
-            </div>
-
-
-            <div class="insight-card">
-
-                <span>04</span>
-
-                <h3>Discount Impact</h3>
-
-                <p>
-                    Higher discount levels were associated with declining
-                    profitability and potential loss-making transactions.
-                </p>
-
-            </div>
-
-
-            <div class="insight-card">
-
-                <span>05</span>
-
-                <h3>Seasonal Trends</h3>
-
-                <p>
-                    Sales varied significantly across months,
-                    providing opportunities for better inventory planning.
-                </p>
-
-            </div>
-
-
-            <div class="insight-card">
-
-                <span>06</span>
-
-                <h3>Profit Matters</h3>
-
-                <p>
-                    High sales do not always translate into high profitability,
-                    making profit analysis essential for decision-making.
-                </p>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- Technologies -->
-    <section class="tech-section">
-
-        <div class="section-heading">
-
-            <p class="section-tag">TECHNOLOGY STACK</p>
-
-            <h2>Tools & Technologies</h2>
-
-        </div>
-
-
-        <div class="tech-container">
-
-            <div class="tech-item">Python</div>
-            <div class="tech-item">Pandas</div>
-            <div class="tech-item">PostgreSQL</div>
-            <div class="tech-item">SQL</div>
-            <div class="tech-item">Power BI</div>
-            <div class="tech-item">DAX</div>
-            <div class="tech-item">GitHub</div>
-
-        </div>
-
-    </section>
-
-
-    <!-- Dashboard -->
-    <section id="dashboard" class="section dashboard-section">
-
-        <div class="section-heading">
-
-            <p class="section-tag">POWER BI DASHBOARD</p>
-
-            <h2>Interactive Business Intelligence Dashboard</h2>
-
-            <p>
-                The Power BI dashboard was designed across three pages
-                to provide executive, product, and regional insights.
-            </p>
-
-        </div>
-
-
-        <div class="dashboard-gallery">
-
-            <div class="dashboard-card">
-
-                <img src="images/dashboard_overview.png"
-                     alt="Global Retail Executive Overview Dashboard">
-
-                <div class="dashboard-info">
-                    <h3>Executive Overview</h3>
                     <p>
-                        High-level KPIs including sales, profit,
-                        orders, customers, and market performance.
+                        High-level performance indicators across global retail operations.
+                    </p>
+                </div>
+
+                <div class="period-tag">
+                    2011 – 2014
+                </div>
+
+            </div>
+
+
+            <!-- KPI CARDS -->
+
+            <div class="kpi-grid">
+
+                <div class="kpi-card">
+                    <div class="kpi-top">
+                        <span>Total Revenue</span>
+                        <span class="trend up">↗</span>
+                    </div>
+
+                    <h3>$13.19M</h3>
+
+                    <p>Across all global markets</p>
+                </div>
+
+
+                <div class="kpi-card">
+
+                    <div class="kpi-top">
+                        <span>Total Profit</span>
+                        <span class="trend up">↗</span>
+                    </div>
+
+                    <h3>$1.47M</h3>
+
+                    <p>Profit generated across operations</p>
+
+                </div>
+
+
+                <div class="kpi-card">
+
+                    <div class="kpi-top">
+                        <span>Total Orders</span>
+                        <span>◎</span>
+                    </div>
+
+                    <h3>25K</h3>
+
+                    <p>Customer transactions processed</p>
+
+                </div>
+
+
+                <div class="kpi-card">
+
+                    <div class="kpi-top">
+                        <span>Customers</span>
+                        <span>◉</span>
+                    </div>
+
+                    <h3>5K</h3>
+
+                    <p>Unique customers served</p>
+
+                </div>
+
+
+                <div class="kpi-card highlight-card">
+
+                    <div class="kpi-top">
+                        <span>Profit Margin</span>
+                        <span>◈</span>
+                    </div>
+
+                    <h3>11.2%</h3>
+
+                    <p>Overall business profitability</p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ANALYTICS -->
+        <section id="analytics" class="section analytics-section">
+
+            <div class="section-header">
+
+                <div>
+                    <span class="eyebrow">PERFORMANCE ANALYTICS</span>
+
+                    <h2>Where is Growth Coming From?</h2>
+
+                    <p>
+                        Revenue and profitability patterns across time and global markets.
                     </p>
                 </div>
 
             </div>
 
 
-            <div class="dashboard-card">
+            <div class="chart-grid">
 
-                <img src="images/product_analysis.png"
-                     alt="Product Analysis Dashboard">
+                <div class="chart-card large-chart">
 
-                <div class="dashboard-info">
-                    <h3>Product Analysis</h3>
+                    <div class="chart-header">
+
+                        <div>
+                            <h3>Revenue Growth Trend</h3>
+
+                            <p>Annual sales performance</p>
+                        </div>
+
+                        <span class="chart-badge positive">
+                            Strong Growth
+                        </span>
+
+                    </div>
+
+                    <canvas id="salesTrendChart"></canvas>
+
+                </div>
+
+
+                <div class="chart-card">
+
+                    <div class="chart-header">
+
+                        <div>
+                            <h3>Sales by Market</h3>
+
+                            <p>Revenue contribution by region</p>
+                        </div>
+
+                    </div>
+
+                    <canvas id="marketSalesChart"></canvas>
+
+                </div>
+
+
+                <div class="chart-card">
+
+                    <div class="chart-header">
+
+                        <div>
+                            <h3>Monthly Sales Pattern</h3>
+
+                            <p>Seasonality across the year</p>
+                        </div>
+
+                    </div>
+
+                    <canvas id="monthlySalesChart"></canvas>
+
+                </div>
+
+
+                <div class="chart-card">
+
+                    <div class="chart-header">
+
+                        <div>
+                            <h3>Quarterly Performance</h3>
+
+                            <p>Sales vs Profit</p>
+                        </div>
+
+                    </div>
+
+                    <canvas id="quarterlyChart"></canvas>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- PROFITABILITY -->
+        <section class="section profitability-section">
+
+            <div class="section-header">
+
+                <div>
+
+                    <span class="eyebrow">PROFITABILITY ANALYSIS</span>
+
+                    <h2>Revenue Doesn't Always Mean Profit</h2>
+
                     <p>
-                        Category and sub-category performance
-                        across sales and profitability.
+                        Comparing market revenue with profit margins reveals important business risks.
                     </p>
+
                 </div>
 
             </div>
 
 
-            <div class="dashboard-card">
+            <div class="profit-layout">
 
-                <img src="images/regional_analysis.png"
-                     alt="Regional Analysis Dashboard">
+                <div class="chart-card">
 
-                <div class="dashboard-info">
-                    <h3>Regional Analysis</h3>
+                    <div class="chart-header">
+
+                        <div>
+
+                            <h3>Profit Margin by Market</h3>
+
+                            <p>Identifying profitability gaps</p>
+
+                        </div>
+
+                    </div>
+
+                    <canvas id="profitMarginChart"></canvas>
+
+                </div>
+
+
+                <div class="risk-card">
+
+                    <div class="risk-label">
+                        KEY BUSINESS RISK
+                    </div>
+
+                    <h3>EMEA Profitability Gap</h3>
+
+                    <div class="risk-number">
+                        5.45%
+                    </div>
+
                     <p>
-                        Regional, market, customer segment,
-                        and shipping performance analysis.
+                        EMEA recorded the lowest profit margin across all markets,
+                        significantly below the global average.
                     </p>
+
+                    <div class="risk-divider"></div>
+
+                    <span>
+                        Potential areas for investigation:
+                    </span>
+
+                    <ul>
+                        <li>Pricing strategy</li>
+                        <li>Discount levels</li>
+                        <li>Product mix</li>
+                        <li>Operational costs</li>
+                    </ul>
+
                 </div>
 
             </div>
 
-        </div>
-
-    </section>
+        </section>
 
 
-    <!-- Project Skills -->
-    <section class="skills-section">
+        <!-- INSIGHTS -->
+        <section id="insights" class="section insights-section">
 
-        <div class="skills-content">
+            <div class="section-header">
 
-            <p class="section-tag">SKILLS DEMONSTRATED</p>
+                <div>
 
-            <h2>End-to-End Data Analytics</h2>
+                    <span class="eyebrow">ANALYST FINDINGS</span>
 
-            <div class="skills-list">
+                    <h2>What the Data Tells Us</h2>
 
-                <span>Data Cleaning</span>
-                <span>Feature Engineering</span>
-                <span>Exploratory Data Analysis</span>
-                <span>SQL</span>
-                <span>Database Management</span>
-                <span>Business Intelligence</span>
-                <span>Data Modeling</span>
-                <span>DAX</span>
-                <span>Dashboard Design</span>
+                    <p>
+                        Key findings translated from data into business context.
+                    </p>
+
+                </div>
 
             </div>
 
-        </div>
 
-    </section>
+            <div class="insights-grid">
 
 
-    <!-- Footer -->
+                <article class="insight-card">
+
+                    <div class="insight-number">01</div>
+
+                    <h3>Revenue Nearly Doubled</h3>
+
+                    <p>
+                        Annual sales increased from $2.26M in 2011 to $4.30M in 2014,
+                        demonstrating consistent business expansion.
+                    </p>
+
+                    <span class="insight-tag">
+                        Growth Opportunity
+                    </span>
+
+                </article>
+
+
+                <article class="insight-card warning">
+
+                    <div class="insight-number">02</div>
+
+                    <h3>EMEA Requires Attention</h3>
+
+                    <p>
+                        EMEA generated the lowest profit margin at 5.45%,
+                        less than half the profitability achieved by the strongest markets.
+                    </p>
+
+                    <span class="insight-tag">
+                        Profitability Risk
+                    </span>
+
+                </article>
+
+
+                <article class="insight-card">
+
+                    <div class="insight-number">03</div>
+
+                    <h3>Q4 Drives Peak Performance</h3>
+
+                    <p>
+                        Q4 generated the highest sales, profit, and order volume,
+                        highlighting strong year-end seasonality.
+                    </p>
+
+                    <span class="insight-tag">
+                        Seasonal Pattern
+                    </span>
+
+                </article>
+
+
+                <article class="insight-card">
+
+                    <div class="insight-number">04</div>
+
+                    <h3>Revenue ≠ Maximum Profit</h3>
+
+                    <p>
+                        December generated the highest sales, while November generated
+                        the highest profit, suggesting differences in discounting or product mix.
+                    </p>
+
+                    <span class="insight-tag">
+                        Margin Analysis
+                    </span>
+
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <!-- RECOMMENDATIONS -->
+        <section id="recommendations" class="section recommendations-section">
+
+            <div class="section-header">
+
+                <div>
+
+                    <span class="eyebrow">BUSINESS RECOMMENDATIONS</span>
+
+                    <h2>Turning Insights Into Action</h2>
+
+                    <p>
+                        Strategic recommendations based on the patterns identified in the analysis.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="recommendation-table">
+
+                <div class="table-row table-header-row">
+                    <div>Business Finding</div>
+                    <div>Recommended Action</div>
+                    <div>Expected Impact</div>
+                </div>
+
+
+                <div class="table-row">
+                    <div>
+                        <strong>EMEA has the lowest margin</strong>
+                    </div>
+
+                    <div>
+                        Review discounting, pricing, and product mix.
+                    </div>
+
+                    <div class="impact risk">
+                        Improve profitability
+                    </div>
+                </div>
+
+
+                <div class="table-row">
+
+                    <div>
+                        <strong>Q4 has peak demand</strong>
+                    </div>
+
+                    <div>
+                        Improve inventory and operational planning before Q4.
+                    </div>
+
+                    <div class="impact positive">
+                        Reduce stock-outs
+                    </div>
+
+                </div>
+
+
+                <div class="table-row">
+
+                    <div>
+                        <strong>November delivers highest profit</strong>
+                    </div>
+
+                    <div>
+                        Analyze profitable product and customer combinations.
+                    </div>
+
+                    <div class="impact positive">
+                        Improve margins
+                    </div>
+
+                </div>
+
+
+                <div class="table-row">
+
+                    <div>
+                        <strong>APAC is the largest market</strong>
+                    </div>
+
+                    <div>
+                        Maintain investment while monitoring profitability.
+                    </div>
+
+                    <div class="impact positive">
+                        Sustain growth
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- METHODOLOGY -->
+        <section class="section methodology-section">
+
+            <span class="eyebrow">ANALYTICAL WORKFLOW</span>
+
+            <h2>From Raw Data to Business Decisions</h2>
+
+
+            <div class="workflow">
+
+                <div class="workflow-step">
+                    <span>01</span>
+                    <h3>Data Preparation</h3>
+                    <p>Cleaned and validated retail transaction data using Python.</p>
+                </div>
+
+                <div class="workflow-arrow">→</div>
+
+                <div class="workflow-step">
+                    <span>02</span>
+                    <h3>Database Analysis</h3>
+                    <p>Structured data in PostgreSQL and developed SQL business queries.</p>
+                </div>
+
+                <div class="workflow-arrow">→</div>
+
+                <div class="workflow-step">
+                    <span>03</span>
+                    <h3>Visualization</h3>
+                    <p>Designed interactive Power BI dashboards for stakeholder analysis.</p>
+                </div>
+
+                <div class="workflow-arrow">→</div>
+
+                <div class="workflow-step">
+                    <span>04</span>
+                    <h3>Business Insights</h3>
+                    <p>Translated analytical findings into actionable recommendations.</p>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- PROJECT -->
+        <section class="project-cta">
+
+            <div>
+
+                <span class="eyebrow">
+                    PROJECT RESOURCES
+                </span>
+
+                <h2>Explore the Complete Analysis</h2>
+
+                <p>
+                    Access the SQL queries, cleaned dataset, Power BI dashboard,
+                    notebooks, and complete project documentation.
+                </p>
+
+            </div>
+
+            <a href="https://github.com/kmmsinan-creator/global-retail-sales-analysis"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="primary-btn">
+                Open GitHub Repository ↗
+            </a>
+
+        </section>
+
+    </main>
+
+
+    <!-- FOOTER -->
+
     <footer>
 
-        <h2>Global Retail Sales Analysis</h2>
+        <div>
+            <strong>GLOBAL RETAIL INTELLIGENCE</strong>
 
-        <p>
-            End-to-End Data Analytics Project
-        </p>
+            <p>
+                Data Analytics Portfolio Project
+            </p>
+        </div>
 
-        <p class="footer-small">
-            Built using Python, PostgreSQL, SQL, Power BI and GitHub
-        </p>
-
-        <p class="copyright">
-            © 2026 Mohammad Sinan
-        </p>
+        <div>
+            Built with SQL · Python · PostgreSQL · Power BI · JavaScript
+        </div>
 
     </footer>
 
