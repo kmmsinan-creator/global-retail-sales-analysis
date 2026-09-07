@@ -1,6 +1,17 @@
+/* =========================================
+   GLOBAL RETAIL INTELLIGENCE
+   PROFESSIONAL ANALYTICS DASHBOARD
+   ========================================= */
+
+
+/* =========================================
+   1. ROOT VARIABLES
+   ========================================= */
+
 :root {
     --bg: #081120;
     --bg-secondary: #0d1b2f;
+
     --card: #101f35;
     --card-light: #142640;
 
@@ -16,8 +27,13 @@
 
     --border: rgba(255, 255, 255, 0.08);
 
-    --shadow: 0 20px 50px rgba(0,0,0,0.25);
+    --shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
 }
+
+
+/* =========================================
+   2. GLOBAL RESET
+   ========================================= */
 
 * {
     margin: 0;
@@ -31,15 +47,29 @@ html {
 
 body {
     font-family: "DM Sans", sans-serif;
+
     background:
-        radial-gradient(circle at 10% 10%, rgba(79, 209, 197, 0.08), transparent 30%),
+        radial-gradient(
+            circle at 10% 10%,
+            rgba(79, 209, 197, 0.08),
+            transparent 30%
+        ),
         var(--bg);
+
     color: var(--text);
     line-height: 1.6;
+
+    overflow-x: hidden;
+}
+
+a {
+    color: inherit;
 }
 
 
-/* NAVIGATION */
+/* =========================================
+   3. NAVIGATION
+   ========================================= */
 
 .navbar {
     position: sticky;
@@ -47,28 +77,31 @@ body {
     z-index: 1000;
 
     backdrop-filter: blur(15px);
-    background: rgba(8, 17, 32, 0.85);
+    -webkit-backdrop-filter: blur(15px);
+
+    background: rgba(8, 17, 32, 0.88);
 
     border-bottom: 1px solid var(--border);
 }
 
 .nav-container {
     max-width: 1300px;
-    margin: auto;
-
     height: 72px;
+
+    margin: auto;
+    padding: 0 30px;
 
     display: flex;
     align-items: center;
     justify-content: space-between;
-
-    padding: 0 30px;
 }
 
 .logo {
     font-weight: 700;
     letter-spacing: 1px;
     font-size: 15px;
+
+    white-space: nowrap;
 }
 
 .logo-dot {
@@ -82,10 +115,13 @@ body {
     border-radius: 50%;
 
     margin-right: 8px;
+
+    box-shadow: 0 0 12px rgba(79, 209, 197, 0.7);
 }
 
 .nav-links {
     display: flex;
+    align-items: center;
     gap: 28px;
 }
 
@@ -93,6 +129,8 @@ body {
     color: var(--muted);
     text-decoration: none;
     font-size: 14px;
+
+    transition: color 0.25s ease;
 }
 
 .nav-links a:hover {
@@ -106,28 +144,31 @@ body {
     border: 1px solid var(--border);
 
     padding: 10px 18px;
-
     border-radius: 8px;
 
     font-size: 14px;
+    font-weight: 500;
 
-    transition: 0.3s;
+    transition: all 0.25s ease;
 }
 
 .github-btn:hover {
     border-color: var(--accent);
     color: var(--accent);
+
+    transform: translateY(-2px);
 }
 
 
-/* HERO */
+/* =========================================
+   4. HERO SECTION
+   ========================================= */
 
 .hero {
     max-width: 1300px;
 
     margin: auto;
-
-    padding: 110px 30px 80px;
+    padding: 110px 30px 90px;
 
     display: flex;
     justify-content: space-between;
@@ -142,18 +183,20 @@ body {
 
 .badge,
 .eyebrow {
+    display: inline-block;
+
     color: var(--accent);
 
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
 
-    letter-spacing: 1.5px;
+    letter-spacing: 1.6px;
 }
 
 .hero h1 {
     font-family: "Playfair Display", serif;
 
-    font-size: clamp(48px, 7vw, 85px);
+    font-size: clamp(48px, 7vw, 82px);
 
     line-height: 1.05;
 
@@ -168,17 +211,25 @@ body {
 .hero-description {
     color: var(--muted);
 
-    font-size: 19px;
+    font-size: 18px;
+    line-height: 1.75;
 
     max-width: 680px;
 }
 
 .hero-actions {
     display: flex;
+    flex-wrap: wrap;
+
     gap: 15px;
 
     margin-top: 35px;
 }
+
+
+/* =========================================
+   5. BUTTONS
+   ========================================= */
 
 .primary-btn,
 .secondary-btn {
@@ -191,11 +242,11 @@ body {
 
     padding: 14px 22px;
 
-    border-radius: 8px;
+    border-radius: 9px;
 
     font-weight: 600;
 
-    transition: 0.3s;
+    transition: all 0.25s ease;
 }
 
 .primary-btn {
@@ -205,7 +256,9 @@ body {
 
 .primary-btn:hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(79, 209, 197, 0.25);
+
+    box-shadow:
+        0 10px 30px rgba(79, 209, 197, 0.25);
 }
 
 .secondary-btn {
@@ -215,12 +268,17 @@ body {
 
 .secondary-btn:hover {
     border-color: var(--accent);
+    color: var(--accent);
 }
 
 
+/* =========================================
+   6. HERO STATS
+   ========================================= */
+
 .hero-stats {
     display: flex;
-    gap: 15px;
+    gap: 18px;
 }
 
 .mini-stat {
@@ -228,7 +286,7 @@ body {
 
     padding-left: 18px;
 
-    min-width: 125px;
+    min-width: 130px;
 }
 
 .mini-label {
@@ -245,14 +303,16 @@ body {
 }
 
 
-/* SECTIONS */
+/* =========================================
+   7. MAIN SECTIONS
+   ========================================= */
 
 .section {
     max-width: 1300px;
 
     margin: auto;
 
-    padding: 85px 30px;
+    padding: 90px 30px;
 }
 
 .section-header {
@@ -261,20 +321,27 @@ body {
     justify-content: space-between;
     align-items: flex-end;
 
-    margin-bottom: 35px;
+    gap: 30px;
+
+    margin-bottom: 38px;
 }
 
 .section h2 {
     font-family: "Playfair Display", serif;
 
-    font-size: 40px;
+    font-size: clamp(32px, 4vw, 42px);
+
+    line-height: 1.2;
 
     margin-top: 8px;
 }
 
 .section-header p {
     color: var(--muted);
-    margin-top: 8px;
+
+    margin-top: 10px;
+
+    max-width: 650px;
 }
 
 .period-tag {
@@ -282,51 +349,71 @@ body {
 
     padding: 10px 15px;
 
-    border-radius: 7px;
+    border-radius: 8px;
 
     color: var(--muted);
+
+    font-size: 13px;
+
+    white-space: nowrap;
 }
 
 
-/* KPI */
+/* =========================================
+   8. KPI CARDS
+   ========================================= */
 
 .kpi-grid {
     display: grid;
 
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(5, minmax(0, 1fr));
 
-    gap: 15px;
+    gap: 16px;
 }
 
 .kpi-card {
-    background: linear-gradient(
-        145deg,
-        rgba(20, 38, 64, 0.95),
-        rgba(13, 27, 47, 0.95)
-    );
+    background:
+        linear-gradient(
+            145deg,
+            rgba(20, 38, 64, 0.95),
+            rgba(13, 27, 47, 0.95)
+        );
 
     border: 1px solid var(--border);
 
-    border-radius: 12px;
+    border-radius: 14px;
 
     padding: 22px;
 
-    transition: 0.3s;
+    min-height: 155px;
+
+    transition: all 0.25s ease;
 }
 
 .kpi-card:hover {
     transform: translateY(-5px);
-    border-color: rgba(79, 209, 197, 0.4);
+
+    border-color: rgba(79, 209, 197, 0.45);
+
+    box-shadow: var(--shadow);
 }
 
 .highlight-card {
     border-color: rgba(79, 209, 197, 0.35);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(79, 209, 197, 0.08),
+            rgba(13, 27, 47, 0.95)
+        );
 }
 
 .kpi-top {
     display: flex;
 
     justify-content: space-between;
+    align-items: center;
 
     color: var(--muted);
 
@@ -335,61 +422,108 @@ body {
 
 .trend.up {
     color: var(--accent);
+
+    font-size: 18px;
 }
 
 .kpi-card h3 {
-    font-size: 30px;
+    font-size: clamp(26px, 2vw, 32px);
 
-    margin: 14px 0 5px;
+    margin: 16px 0 5px;
 }
 
 .kpi-card p {
     color: var(--muted);
 
     font-size: 12px;
+
+    line-height: 1.5;
 }
 
 
-/* CHARTS */
+/* =========================================
+   9. ANALYTICS SECTION
+   ========================================= */
 
 .analytics-section {
-    background:
-        linear-gradient(
-            180deg,
-            transparent,
-            rgba(255,255,255,0.015)
-        );
+    position: relative;
 }
 
 .chart-grid {
     display: grid;
 
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
 
-    gap: 20px;
+    gap: 22px;
 }
 
+
+/* =========================================
+   10. PROFESSIONAL CHART CARDS
+   ========================================= */
+
 .chart-card {
-    background: var(--card);
+    position: relative;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(20, 38, 64, 0.98),
+            rgba(13, 27, 47, 0.98)
+        );
 
     border: 1px solid var(--border);
 
-    border-radius: 14px;
+    border-radius: 16px;
 
-    padding: 25px;
+    padding: 24px;
 
-    min-height: 380px;
+    height: 430px;
+
+    overflow: hidden;
+
+    transition:
+        transform 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
 }
+
+.chart-card:hover {
+    transform: translateY(-4px);
+
+    border-color: rgba(79, 209, 197, 0.3);
+
+    box-shadow: var(--shadow);
+}
+
+.chart-card.large-chart {
+    grid-column: span 2;
+
+    height: 480px;
+}
+
+
+/* Chart header */
 
 .chart-header {
     display: flex;
-    justify-content: space-between;
 
-    margin-bottom: 20px;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    gap: 15px;
+
+    margin-bottom: 12px;
+
+    position: relative;
+    z-index: 2;
 }
 
 .chart-header h3 {
     font-size: 17px;
+    font-weight: 600;
+
+    margin-bottom: 4px;
 }
 
 .chart-header p {
@@ -397,14 +531,17 @@ body {
     font-size: 13px;
 }
 
+
+/* Chart badge */
+
 .chart-badge {
     font-size: 11px;
-
-    height: fit-content;
 
     padding: 6px 10px;
 
     border-radius: 20px;
+
+    white-space: nowrap;
 }
 
 .positive {
@@ -412,34 +549,57 @@ body {
     color: var(--accent);
 }
 
-.large-chart {
-    grid-column: span 2;
+
+/* IMPORTANT:
+   This fixes Chart.js sizing problems
+*/
+
+.chart-card canvas {
+    display: block !important;
+
+    width: 100% !important;
+
+    height: calc(100% - 75px) !important;
+
+    max-height: none !important;
 }
 
 
-/* PROFITABILITY */
+/* =========================================
+   11. PROFITABILITY SECTION
+   ========================================= */
 
 .profit-layout {
     display: grid;
 
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr);
 
-    gap: 20px;
+    gap: 22px;
 }
 
 .risk-card {
+    min-height: 430px;
+
     background:
         linear-gradient(
             145deg,
-            rgba(255,112,112,0.1),
+            rgba(255, 112, 112, 0.1),
             var(--card)
         );
 
-    border: 1px solid rgba(255,112,112,0.2);
+    border: 1px solid rgba(255, 112, 112, 0.22);
 
-    border-radius: 14px;
+    border-radius: 16px;
 
     padding: 35px;
+
+    transition: all 0.25s ease;
+}
+
+.risk-card:hover {
+    transform: translateY(-4px);
+
+    box-shadow: var(--shadow);
 }
 
 .risk-label {
@@ -455,15 +615,21 @@ body {
 .risk-card h3 {
     font-size: 25px;
 
+    line-height: 1.25;
+
     margin: 15px 0;
 }
 
 .risk-number {
-    font-size: 55px;
+    font-size: 58px;
+
+    line-height: 1;
 
     color: var(--red);
 
     font-weight: 700;
+
+    margin: 18px 0;
 }
 
 .risk-card p,
@@ -486,84 +652,150 @@ body {
     padding-left: 18px;
 }
 
+.risk-card li {
+    margin-bottom: 6px;
+}
 
-/* INSIGHTS */
+
+/* =========================================
+   12. INSIGHTS SECTION
+   ========================================= */
 
 .insights-section {
-    background: rgba(255,255,255,0.015);
+    max-width: none;
+
+    padding-left: max(30px, calc((100% - 1240px) / 2));
+    padding-right: max(30px, calc((100% - 1240px) / 2));
 }
 
 .insights-grid {
     display: grid;
 
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
 
-    gap: 18px;
+    gap: 20px;
 }
 
 .insight-card {
-    background: var(--card);
+    position: relative;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(20, 38, 64, 0.95),
+            rgba(13, 27, 47, 0.98)
+        );
 
     border: 1px solid var(--border);
 
-    padding: 25px;
+    padding: 32px;
 
-    border-radius: 12px;
+    border-radius: 16px;
 
-    transition: 0.3s;
+    overflow: hidden;
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        border-color 0.25s ease;
+}
+
+.insight-card::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 4px;
+    height: 100%;
+
+    background: var(--accent);
+}
+
+.insight-card.warning::before {
+    background: var(--red);
 }
 
 .insight-card:hover {
-    transform: translateY(-6px);
+    transform: translateY(-5px);
+
+    border-color: rgba(79, 209, 197, 0.3);
+
+    box-shadow: var(--shadow);
 }
 
 .insight-number {
     color: var(--accent);
 
-    font-size: 13px;
+    font-size: 12px;
 
     font-weight: 700;
+
+    letter-spacing: 2px;
+}
+
+.warning .insight-number {
+    color: var(--red);
 }
 
 .insight-card h3 {
-    margin: 25px 0 12px;
+    margin: 18px 0 12px;
 
-    font-size: 20px;
+    font-size: 23px;
+
+    line-height: 1.3;
 }
 
 .insight-card p {
     color: var(--muted);
 
-    font-size: 14px;
+    font-size: 15px;
 
-    min-height: 130px;
+    line-height: 1.7;
 }
 
 .insight-tag {
+    display: inline-block;
+
+    margin-top: 22px;
+
     font-size: 11px;
+    font-weight: 600;
 
     color: var(--accent);
 
-    border: 1px solid rgba(79,209,197,.2);
+    background: rgba(79, 209, 197, 0.08);
 
-    padding: 6px 9px;
+    border: 1px solid rgba(79, 209, 197, 0.2);
+
+    padding: 7px 12px;
 
     border-radius: 20px;
 }
 
-.warning {
-    border-color: rgba(255,112,112,.2);
+.warning .insight-tag {
+    color: var(--red);
+
+    background: rgba(255, 112, 112, 0.08);
+
+    border-color: rgba(255, 112, 112, 0.2);
 }
 
 
-/* RECOMMENDATIONS */
+/* =========================================
+   13. RECOMMENDATIONS TABLE
+   ========================================= */
 
 .recommendation-table {
     border: 1px solid var(--border);
 
-    border-radius: 12px;
+    border-radius: 14px;
 
     overflow: hidden;
+
+    background: var(--card);
 }
 
 .table-row {
@@ -571,9 +803,11 @@ body {
 
     grid-template-columns: 1.2fr 2fr 1fr;
 
+    align-items: center;
+
     gap: 25px;
 
-    padding: 22px;
+    padding: 22px 24px;
 
     border-bottom: 1px solid var(--border);
 
@@ -584,45 +818,64 @@ body {
     border-bottom: none;
 }
 
+.table-row:hover:not(.table-header-row) {
+    background: rgba(255, 255, 255, 0.025);
+}
+
 .table-header-row {
-    background: rgba(255,255,255,.04);
+    background: rgba(255, 255, 255, 0.04);
 
     color: var(--text);
 
-    font-size: 13px;
+    font-size: 12px;
 
     font-weight: 700;
+
+    letter-spacing: 0.5px;
+}
+
+.table-row strong {
+    color: var(--text);
 }
 
 .impact {
+    display: inline-flex;
+
+    align-items: center;
+
     font-size: 12px;
+    font-weight: 600;
 
     width: fit-content;
 
-    height: fit-content;
+    padding: 7px 11px;
 
-    padding: 6px 10px;
-
-    border-radius: 15px;
+    border-radius: 20px;
 }
 
 .impact.positive {
     color: var(--accent);
+
+    background: rgba(79, 209, 197, 0.08);
 }
 
 .impact.risk {
     color: var(--orange);
+
+    background: rgba(255, 184, 107, 0.08);
 }
 
 
-/* WORKFLOW */
+/* =========================================
+   14. METHODOLOGY / WORKFLOW
+   ========================================= */
 
 .methodology-section {
     text-align: center;
 }
 
 .methodology-section h2 {
-    margin-bottom: 50px;
+    margin-bottom: 55px;
 }
 
 .workflow {
@@ -631,18 +884,22 @@ body {
     align-items: center;
     justify-content: center;
 
-    gap: 20px;
+    gap: 18px;
+
+    flex-wrap: wrap;
 }
 
 .workflow-step {
-    max-width: 220px;
+    width: 220px;
+
+    padding: 15px;
 }
 
 .workflow-step span {
     display: inline-flex;
 
-    width: 45px;
-    height: 45px;
+    width: 48px;
+    height: 48px;
 
     align-items: center;
     justify-content: center;
@@ -665,49 +922,56 @@ body {
 
     font-size: 13px;
 
+    line-height: 1.6;
+
     margin-top: 8px;
 }
 
 .workflow-arrow {
     color: var(--accent);
 
-    font-size: 25px;
+    font-size: 24px;
+
+    opacity: 0.7;
 }
 
 
-/* CTA */
+/* =========================================
+   15. PROJECT CTA
+   ========================================= */
 
 .project-cta {
     max-width: 1240px;
 
     margin: 40px auto 90px;
 
-    padding: 50px;
+    padding: 55px;
 
     background:
         linear-gradient(
             135deg,
-            rgba(79,209,197,.15),
-            rgba(79,140,255,.08)
+            rgba(79, 209, 197, 0.15),
+            rgba(79, 140, 255, 0.08)
         );
 
     border: 1px solid var(--border);
 
-    border-radius: 18px;
+    border-radius: 20px;
 
     display: flex;
 
     justify-content: space-between;
-
     align-items: center;
 
-    gap: 30px;
+    gap: 35px;
 }
 
 .project-cta h2 {
     font-family: "Playfair Display", serif;
 
-    font-size: 35px;
+    font-size: clamp(30px, 3vw, 38px);
+
+    line-height: 1.2;
 
     margin: 10px 0;
 }
@@ -719,7 +983,9 @@ body {
 }
 
 
-/* FOOTER */
+/* =========================================
+   16. FOOTER
+   ========================================= */
 
 footer {
     max-width: 1300px;
@@ -734,13 +1000,19 @@ footer {
 
     justify-content: space-between;
 
+    gap: 20px;
+
     color: var(--muted);
 
     font-size: 13px;
 }
 
 footer strong {
+    display: block;
+
     color: var(--text);
+
+    margin-bottom: 4px;
 }
 
 footer p {
@@ -748,16 +1020,14 @@ footer p {
 }
 
 
-/* RESPONSIVE */
+/* =========================================
+   17. TABLET RESPONSIVE
+   ========================================= */
 
-@media (max-width: 1000px) {
+@media (max-width: 1100px) {
 
     .kpi-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-
-    .insights-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
     .hero {
@@ -769,68 +1039,201 @@ footer p {
         grid-template-columns: 1fr;
     }
 
-    .workflow {
-        flex-wrap: wrap;
+    .risk-card {
+        min-height: auto;
     }
 
     .workflow-arrow {
         display: none;
     }
+
+    .project-cta {
+        margin-left: 30px;
+        margin-right: 30px;
+    }
 }
 
 
-@media (max-width: 700px) {
+/* =========================================
+   18. MOBILE RESPONSIVE
+   ========================================= */
+
+@media (max-width: 750px) {
+
+    .nav-container {
+        padding: 0 20px;
+    }
 
     .nav-links {
         display: none;
     }
 
+    .github-btn {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
     .hero {
-        padding-top: 70px;
+        padding: 75px 22px 65px;
+    }
+
+    .hero h1 {
+        font-size: 48px;
+    }
+
+    .hero-description {
+        font-size: 16px;
     }
 
     .hero-stats {
         flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .section {
+        padding: 70px 20px;
+    }
+
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .section h2 {
+        font-size: 32px;
     }
 
     .kpi-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .kpi-card:last-child {
+        grid-column: span 2;
     }
 
     .chart-grid {
         grid-template-columns: 1fr;
     }
 
-    .large-chart {
+    .chart-card,
+    .chart-card.large-chart {
         grid-column: span 1;
+
+        height: 390px;
+
+        padding: 18px;
+    }
+
+    .chart-card canvas {
+        height: calc(100% - 75px) !important;
     }
 
     .insights-grid {
         grid-template-columns: 1fr;
     }
 
+    .insights-section {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
     .table-row {
         grid-template-columns: 1fr;
+
         gap: 10px;
+
+        padding: 20px;
     }
 
     .table-header-row {
         display: none;
     }
 
+    .table-row:not(.table-header-row)::before {
+        content: "Business Recommendation";
+
+        color: var(--accent);
+
+        font-size: 11px;
+
+        font-weight: 700;
+
+        letter-spacing: 1px;
+    }
+
+    .workflow {
+        flex-direction: column;
+    }
+
+    .workflow-step {
+        width: 100%;
+        max-width: 320px;
+    }
+
     .project-cta {
         flex-direction: column;
+
         align-items: flex-start;
 
-        margin: 30px 15px 60px;
+        margin: 30px 20px 60px;
+
+        padding: 35px 25px;
     }
 
     footer {
+        padding: 35px 20px;
+
         flex-direction: column;
-        gap: 15px;
+    }
+}
+
+
+/* =========================================
+   19. SMALL MOBILE
+   ========================================= */
+
+@media (max-width: 450px) {
+
+    .logo {
+        font-size: 12px;
     }
 
-    .chart-card canvas {
-    max-height: 300px;
+    .github-btn {
+        font-size: 11px;
+    }
+
+    .hero h1 {
+        font-size: 40px;
+    }
+
+    .hero-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .primary-btn,
+    .secondary-btn {
+        width: 100%;
+    }
+
+    .kpi-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .kpi-card:last-child {
+        grid-column: span 1;
+    }
+
+    .chart-card,
+    .chart-card.large-chart {
+        height: 360px;
+    }
+
+    .chart-header {
+        flex-direction: column;
+    }
+
+    .risk-number {
+        font-size: 48px;
     }
 }
