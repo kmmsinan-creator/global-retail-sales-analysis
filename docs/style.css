@@ -829,4 +829,8 @@ footer p {
         flex-direction: column;
         gap: 15px;
     }
+
+    .chart-card canvas {
+    max-height: 300px;
+    }
 }
