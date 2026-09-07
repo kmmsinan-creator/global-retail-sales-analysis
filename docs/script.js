@@ -3,7 +3,6 @@
    INTERACTIVE DATA ENGINE
    ========================================= */
 
-
 let retailData = [];
 let filteredData = [];
 
@@ -18,7 +17,6 @@ let charts = {};
    ========================================= */
 
 Chart.defaults.color = "#9aa9bd";
-
 Chart.defaults.font.family = "'DM Sans', sans-serif";
 
 
@@ -38,7 +36,9 @@ const commonOptions = {
     plugins: {
         legend: {
             labels: {
-                color: "#9aa9bd"
+                color: "#9aa9bd",
+                usePointStyle: false,
+                padding: 16
             }
         },
 
@@ -62,7 +62,6 @@ const commonOptions = {
 
 /* =========================================
    COLUMN DETECTION
-   Supports different CSV column names
    ========================================= */
 
 function findColumn(row, possibleNames) {
@@ -71,17 +70,23 @@ function findColumn(row, possibleNames) {
 
     for (const possibleName of possibleNames) {
 
+        const normalizedPossibleName =
+            possibleName
+                .toLowerCase()
+                .replace(/[\s_-]/g, "");
+
         const found = columns.find(column =>
+
             column
                 .toLowerCase()
                 .replace(/[\s_-]/g, "")
             ===
-            possibleName
-                .toLowerCase()
-                .replace(/[\s_-]/g, "")
+            normalizedPossibleName
         );
 
-        if (found) return found;
+        if (found) {
+            return found;
+        }
     }
 
     return null;
@@ -94,13 +99,18 @@ function findColumn(row, possibleNames) {
 
 function toNumber(value) {
 
-    if (value === undefined || value === null) {
+    if (
+        value === undefined ||
+        value === null ||
+        value === ""
+    ) {
         return 0;
     }
 
     return Number(
         String(value)
-            .replace(/[$,]/g, "")
+            .replace(/[$,%]/g, "")
+            .replace(/,/g, "")
             .trim()
     ) || 0;
 }
@@ -112,17 +122,18 @@ function toNumber(value) {
 
 function parseDate(value) {
 
-    if (!value) return null;
+    if (!value) {
+        return null;
+    }
 
-    let date = new Date(value);
+    const date = new Date(value);
 
-    if (!isNaN(date)) return date;
+    if (!isNaN(date.getTime())) {
+        return date;
+    }
 
-
-    // Handle DD-MM-YYYY or DD/MM/YYYY
-
-    const parts = String(value)
-        .split(/[\/-]/);
+    const parts =
+        String(value).split(/[\/-]/);
 
     if (parts.length === 3) {
 
@@ -145,20 +156,110 @@ function parseDate(value) {
 
 function formatCurrency(value) {
 
-    if (Math.abs(value) >= 1000000) {
+    const absoluteValue = Math.abs(value);
+
+    if (absoluteValue >= 1000000) {
         return "$" + (value / 1000000).toFixed(2) + "M";
     }
 
-    if (Math.abs(value) >= 1000) {
+    if (absoluteValue >= 1000) {
         return "$" + (value / 1000).toFixed(1) + "K";
     }
 
-    return "$" + value.toFixed(0);
+    return "$" + Number(value || 0).toFixed(0);
 }
 
 
 function formatNumber(value) {
-    return new Intl.NumberFormat("en-US").format(value);
+
+    return new Intl.NumberFormat(
+        "en-US"
+    ).format(value || 0);
+}
+
+
+/* =========================================
+   MONTH HELPERS
+   ========================================= */
+
+const shortMonthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec"
+];
+
+
+const fullMonthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
+];
+
+
+function normalizeMonth(value) {
+
+    if (
+        value === null ||
+        value === undefined ||
+        value === ""
+    ) {
+        return null;
+    }
+
+    const numericMonth = Number(value);
+
+    if (
+        numericMonth >= 1 &&
+        numericMonth <= 12
+    ) {
+        return numericMonth;
+    }
+
+    const monthString =
+        String(value)
+            .trim()
+            .toLowerCase();
+
+    const monthIndex =
+        fullMonthNames.findIndex(
+            month =>
+                month.toLowerCase() === monthString
+        );
+
+    if (monthIndex !== -1) {
+        return monthIndex + 1;
+    }
+
+    const shortMonthIndex =
+        shortMonthNames.findIndex(
+            month =>
+                month.toLowerCase() ===
+                monthString.substring(0, 3)
+        );
+
+    if (shortMonthIndex !== -1) {
+        return shortMonthIndex + 1;
+    }
+
+    return null;
 }
 
 
@@ -166,193 +267,372 @@ function formatNumber(value) {
    LOAD CSV
    ========================================= */
 
-Papa.parse("data/global_retail_powerbi.csv", {
+Papa.parse(
+    "data/global_retail_powerbi.csv",
+    {
 
-    download: true,
+        download: true,
 
-    header: true,
+        header: true,
 
-    skipEmptyLines: true,
+        skipEmptyLines: true,
 
-    complete: function(results) {
+        complete: function(results) {
 
-        console.log(
-            "CSV loaded:",
-            results.data.length,
-            "rows"
-        );
+            console.log(
+                "CSV loaded:",
+                results.data.length,
+                "rows"
+            );
 
 
-        if (!results.data.length) {
+            if (!results.data.length) {
+
+                showError(
+                    "The CSV file could not be loaded."
+                );
+
+                return;
+            }
+
+
+            const sampleRow =
+                results.data[0];
+
+
+            console.log(
+                "Detected columns:",
+                Object.keys(sampleRow)
+            );
+
+
+            /* =========================================
+               DETECT COLUMNS
+               ========================================= */
+
+            const salesColumn =
+                findColumn(
+                    sampleRow,
+                    [
+                        "sales",
+                        "revenue",
+                        "total_sales",
+                        "totalsales"
+                    ]
+                );
+
+
+            const profitColumn =
+                findColumn(
+                    sampleRow,
+                    [
+                        "profit",
+                        "total_profit",
+                        "totalprofit"
+                    ]
+                );
+
+
+            const marketColumn =
+                findColumn(
+                    sampleRow,
+                    [
+                        "market",
+                        "market_group",
+                        "marketgroup",
+                        "region"
+                    ]
+                );
+
+
+            const orderColumn =
+                findColumn(
+                    sampleRow,
+                    [
+                        "order_id",
+                        "orderid",
+                        "order id"
+                    ]
+                );
+
+
+            const customerColumn =
+                findColumn(
+                    sampleRow,
+                    [
+                        "customer_id",
+                        "customerid",
+                        "customer id"
+                    ]
+                );
+
+
+            const dateColumn =
+                findColumn(
+                    sampleRow,
+                    [
+                        "order_date",
+                        "orderdate",
+                        "order date",
+                        "date"
+                    ]
+                );
+
+
+            /* IMPORTANT:
+               Use existing cleaned columns
+               from your Power BI CSV
+            */
+
+            const yearColumn =
+                findColumn(
+                    sampleRow,
+                    [
+                        "year"
+                    ]
+                );
+
+
+            const monthColumn =
+                findColumn(
+                    sampleRow,
+                    [
+                        "month",
+                        "month_number",
+                        "monthnumber"
+                    ]
+                );
+
+
+            const quarterColumn =
+                findColumn(
+                    sampleRow,
+                    [
+                        "quarter"
+                    ]
+                );
+
+
+            console.log({
+                salesColumn,
+                profitColumn,
+                marketColumn,
+                orderColumn,
+                customerColumn,
+                dateColumn,
+                yearColumn,
+                monthColumn,
+                quarterColumn
+            });
+
+
+            if (
+                !salesColumn ||
+                !profitColumn
+            ) {
+
+                showError(
+                    "Required sales or profit columns could not be detected."
+                );
+
+                return;
+            }
+
+
+            /* =========================================
+               NORMALIZE DATA
+               ========================================= */
+
+            retailData =
+                results.data
+                    .map(row => {
+
+                        const date =
+                            dateColumn
+                                ? parseDate(
+                                    row[dateColumn]
+                                )
+                                : null;
+
+
+                        const csvYear =
+                            yearColumn
+                                ? Number(
+                                    row[yearColumn]
+                                )
+                                : null;
+
+
+                        const csvMonth =
+                            monthColumn
+                                ? normalizeMonth(
+                                    row[monthColumn]
+                                )
+                                : null;
+
+
+                        let csvQuarter =
+                            quarterColumn
+                                ? Number(
+                                    String(
+                                        row[quarterColumn]
+                                    )
+                                    .replace(/[^0-9]/g, "")
+                                )
+                                : null;
+
+
+                        if (
+                            !csvQuarter ||
+                            csvQuarter < 1 ||
+                            csvQuarter > 4
+                        ) {
+                            csvQuarter = null;
+                        }
+
+
+                        return {
+
+                            sales:
+                                toNumber(
+                                    row[salesColumn]
+                                ),
+
+                            profit:
+                                toNumber(
+                                    row[profitColumn]
+                                ),
+
+                            market:
+                                marketColumn
+                                    ? String(
+                                        row[marketColumn]
+                                    ).trim()
+                                    : "Unknown",
+
+                            order:
+                                orderColumn
+                                    ? String(
+                                        row[orderColumn]
+                                    ).trim()
+                                    : "",
+
+                            customer:
+                                customerColumn
+                                    ? String(
+                                        row[customerColumn]
+                                    ).trim()
+                                    : "",
+
+                            date: date,
+
+
+                            /* USE CSV YEAR FIRST */
+
+                            year:
+                                (
+                                    csvYear &&
+                                    !isNaN(csvYear)
+                                )
+                                    ? csvYear
+                                    : (
+                                        date
+                                            ? date.getFullYear()
+                                            : null
+                                    ),
+
+
+                            /* USE CSV MONTH FIRST */
+
+                            month:
+                                csvMonth
+                                    ? csvMonth
+                                    : (
+                                        date
+                                            ? date.getMonth() + 1
+                                            : null
+                                    ),
+
+
+                            /* USE CSV QUARTER FIRST */
+
+                            quarter:
+                                csvQuarter
+                                    ? csvQuarter
+                                    : (
+                                        csvMonth
+                                            ? Math.ceil(
+                                                csvMonth / 3
+                                            )
+                                            : (
+                                                date
+                                                    ? Math.floor(
+                                                        date.getMonth() / 3
+                                                    ) + 1
+                                                    : null
+                                            )
+                                    )
+                        };
+                    })
+
+                    .filter(row =>
+                        row.year &&
+                        row.month &&
+                        !isNaN(row.sales)
+                    );
+
+
+            filteredData =
+                [...retailData];
+
+
+            console.log(
+                "Valid records:",
+                retailData.length
+            );
+
+
+            console.log(
+                "Available years:",
+                [...new Set(
+                    retailData.map(
+                        row => row.year
+                    )
+                )]
+            );
+
+
+            console.log(
+                "Available markets:",
+                [...new Set(
+                    retailData.map(
+                        row => row.market
+                    )
+                )]
+            );
+
+
+            createYearFilters();
+
+            createMarketFilters();
+
+            updateDashboard();
+        },
+
+
+        error: function(error) {
+
+            console.error(
+                "CSV loading error:",
+                error
+            );
 
             showError(
-                "The CSV file could not be loaded."
+                "Error loading CSV data."
             );
-
-            return;
         }
-
-
-        const sampleRow = results.data[0];
-
-
-        console.log(
-            "Detected columns:",
-            Object.keys(sampleRow)
-        );
-
-
-        /* Detect columns */
-
-        const salesColumn = findColumn(sampleRow, [
-            "Sales",
-            "Revenue",
-            "TotalSales"
-        ]);
-
-
-        const profitColumn = findColumn(sampleRow, [
-            "Profit",
-            "TotalProfit"
-        ]);
-
-
-        const marketColumn = findColumn(sampleRow, [
-            "Market",
-            "Region",
-            "MarketGroup"
-        ]);
-
-
-        const orderColumn = findColumn(sampleRow, [
-            "OrderID",
-            "OrderId",
-            "Order ID"
-        ]);
-
-
-        const customerColumn = findColumn(sampleRow, [
-            "CustomerID",
-            "CustomerId",
-            "Customer ID"
-        ]);
-
-
-        const dateColumn = findColumn(sampleRow, [
-            "OrderDate",
-            "Order Date",
-            "Date"
-        ]);
-
-
-        console.log({
-            salesColumn,
-            profitColumn,
-            marketColumn,
-            orderColumn,
-            customerColumn,
-            dateColumn
-        });
-
-
-        if (!salesColumn || !profitColumn || !dateColumn) {
-
-            showError(
-                "Required columns could not be detected. Check browser console for column names."
-            );
-
-            return;
-        }
-
-
-        /* Normalize data */
-
-        retailData = results.data
-            .map(row => {
-
-                const date =
-                    parseDate(row[dateColumn]);
-
-                return {
-
-                    sales:
-                        toNumber(row[salesColumn]),
-
-                    profit:
-                        toNumber(row[profitColumn]),
-
-                    market:
-                        marketColumn
-                            ? String(
-                                row[marketColumn]
-                            ).trim()
-                            : "Unknown",
-
-                    order:
-                        orderColumn
-                            ? String(row[orderColumn])
-                            : "",
-
-                    customer:
-                        customerColumn
-                            ? String(row[customerColumn])
-                            : "",
-
-                    date: date,
-
-                    year:
-                        date
-                            ? date.getFullYear()
-                            : null,
-
-                    month:
-                        date
-                            ? date.getMonth() + 1
-                            : null,
-
-                    quarter:
-                        date
-                            ? Math.floor(
-                                date.getMonth() / 3
-                            ) + 1
-                            : null
-                };
-
-            })
-
-            .filter(row =>
-                row.date &&
-                !isNaN(row.sales)
-            );
-
-
-        filteredData = [...retailData];
-
-
-        console.log(
-            "Valid records:",
-            retailData.length
-        );
-
-
-        createYearFilters();
-
-        createMarketFilters();
-
-        updateDashboard();
-
-    },
-
-
-    error: function(error) {
-
-        console.error(error);
-
-        showError(
-            "Error loading CSV data."
-        );
     }
-});
+);
 
 
 /* =========================================
@@ -367,7 +647,12 @@ function createYearFilters() {
         );
 
 
-    if (!container) return;
+    if (!container) {
+        console.warn(
+            "yearFilters container not found"
+        );
+        return;
+    }
 
 
     const years =
@@ -376,21 +661,23 @@ function createYearFilters() {
                 .map(row => row.year)
                 .filter(Boolean)
         )]
-        .sort();
+        .sort(
+            (a, b) => a - b
+        );
 
 
     container.innerHTML = "";
 
 
-    const allButton =
+    container.appendChild(
+
         createFilterButton(
             "All Years",
             "All",
             "year",
             true
-        );
-
-    container.appendChild(allButton);
+        )
+    );
 
 
     years.forEach(year => {
@@ -398,14 +685,12 @@ function createYearFilters() {
         container.appendChild(
 
             createFilterButton(
-                year,
-                year,
+                String(year),
+                String(year),
                 "year",
                 false
             )
-
         );
-
     });
 }
 
@@ -422,7 +707,12 @@ function createMarketFilters() {
         );
 
 
-    if (!container) return;
+    if (!container) {
+        console.warn(
+            "marketFilters container not found"
+        );
+        return;
+    }
 
 
     const markets =
@@ -441,15 +731,15 @@ function createMarketFilters() {
     container.innerHTML = "";
 
 
-    const allButton =
+    container.appendChild(
+
         createFilterButton(
             "All Markets",
             "All",
             "market",
             true
-        );
-
-    container.appendChild(allButton);
+        )
+    );
 
 
     markets.forEach(market => {
@@ -462,9 +752,7 @@ function createMarketFilters() {
                 "market",
                 false
             )
-
         );
-
     });
 }
 
@@ -484,16 +772,25 @@ function createFilterButton(
         document.createElement("button");
 
 
+    button.type = "button";
+
     button.textContent = text;
+
 
     button.className =
         "filter-btn" +
-        (active ? " active" : "");
+        (
+            active
+                ? " active"
+                : ""
+        );
 
 
-    button.dataset.value = value;
+    button.dataset.value =
+        String(value);
 
-    button.dataset.type = type;
+    button.dataset.type =
+        type;
 
 
     button.addEventListener(
@@ -503,31 +800,37 @@ function createFilterButton(
             if (type === "year") {
 
                 selectedYear =
-                    value;
+                    String(value);
 
                 updateActiveButton(
                     "yearFilters",
                     button
                 );
-
             }
 
 
             if (type === "market") {
 
                 selectedMarket =
-                    value;
+                    String(value);
 
                 updateActiveButton(
                     "marketFilters",
                     button
                 );
-
             }
 
 
-            applyFilters();
+            console.log(
+                "Filters changed:",
+                {
+                    selectedYear,
+                    selectedMarket
+                }
+            );
 
+
+            applyFilters();
         }
     );
 
@@ -545,18 +848,20 @@ function updateActiveButton(
     activeButton
 ) {
 
-    document
-        .querySelectorAll(
-            "#" + containerId +
+    const buttons =
+        document.querySelectorAll(
+            "#" +
+            containerId +
             " .filter-btn"
-        )
-        .forEach(button => {
+        );
 
-            button.classList.remove(
-                "active"
-            );
 
-        });
+    buttons.forEach(button => {
+
+        button.classList.remove(
+            "active"
+        );
+    });
 
 
     activeButton.classList.add(
@@ -575,20 +880,36 @@ function applyFilters() {
         retailData.filter(row => {
 
             const yearMatch =
+
                 selectedYear === "All" ||
+
                 String(row.year) ===
                 String(selectedYear);
 
 
             const marketMatch =
+
                 selectedMarket === "All" ||
-                row.market === selectedMarket;
+
+                String(row.market) ===
+                String(selectedMarket);
 
 
-            return yearMatch &&
-                marketMatch;
-
+            return (
+                yearMatch &&
+                marketMatch
+            );
         });
+
+
+    console.log(
+        "Filtered records:",
+        filteredData.length,
+        {
+            selectedYear,
+            selectedMarket
+        }
+    );
 
 
     updateDashboard();
@@ -606,7 +927,6 @@ document
         function() {
 
             selectedYear = "All";
-
             selectedMarket = "All";
 
 
@@ -618,9 +938,10 @@ document
 
                     button.classList.toggle(
                         "active",
-                        button.dataset.value === "All"
-                    );
 
+                        button.dataset.value ===
+                        "All"
+                    );
                 });
 
 
@@ -632,9 +953,10 @@ document
 
                     button.classList.toggle(
                         "active",
-                        button.dataset.value === "All"
-                    );
 
+                        button.dataset.value ===
+                        "All"
+                    );
                 });
 
 
@@ -644,6 +966,10 @@ document
 
             updateDashboard();
 
+
+            console.log(
+                "Filters reset"
+            );
         }
     );
 
@@ -713,8 +1039,11 @@ function updateKPIs() {
 
 
     const margin =
-        totalSales
-            ? (totalProfit / totalSales) * 100
+        totalSales > 0
+            ? (
+                totalProfit /
+                totalSales
+            ) * 100
             : 0;
 
 
@@ -755,18 +1084,18 @@ function updateKPIs() {
 
 function updateSummary() {
 
-    let summary = [];
+    const summary = [];
 
 
     if (selectedYear === "All") {
-        summary.push("All years");
+        summary.push("All Years");
     } else {
         summary.push(selectedYear);
     }
 
 
     if (selectedMarket === "All") {
-        summary.push("All markets");
+        summary.push("All Markets");
     } else {
         summary.push(selectedMarket);
     }
@@ -774,7 +1103,10 @@ function updateSummary() {
 
     setText(
         "filterSummary",
-        `${filteredData.length.toLocaleString()} records · ${summary.join(" · ")}`
+
+        `${formatNumber(
+            filteredData.length
+        )} records · ${summary.join(" · ")}`
     );
 
 
@@ -786,7 +1118,7 @@ function updateSummary() {
 
 
 /* =========================================
-   GROUP DATA HELPER
+   GROUP SUM HELPER
    ========================================= */
 
 function groupSum(
@@ -803,16 +1135,19 @@ function groupSum(
         const key =
             keyFunction(row);
 
+
         if (
             key === null ||
-            key === undefined
-        ) return;
+            key === undefined ||
+            key === ""
+        ) {
+            return;
+        }
 
 
         result[key] =
             (result[key] || 0) +
-            valueFunction(row);
-
+            (Number(valueFunction(row)) || 0);
     });
 
 
@@ -831,64 +1166,186 @@ function destroyChart(name) {
         charts[name].destroy();
 
         charts[name] = null;
-
     }
 }
 
 
 /* =========================================
+   EMPTY CHART HELPER
+   ========================================= */
+
+function hasCanvas(id) {
+
+    return document.getElementById(id) !== null;
+}
+
+
+/* =========================================
    GROWTH CHART
+
+   ALL YEARS:
+   Shows yearly trend
+
+   SINGLE YEAR:
+   Shows monthly trend
    ========================================= */
 
 function updateGrowthChart() {
 
+    if (!hasCanvas("growthChart")) {
+        return;
+    }
+
+
     destroyChart("growth");
 
 
-    const salesByYear =
-        groupSum(
-            filteredData,
-            row => row.year,
-            row => row.sales
+    const canvas =
+        document.getElementById(
+            "growthChart"
         );
 
 
-    const profitByYear =
-        groupSum(
-            filteredData,
-            row => row.year,
-            row => row.profit
+    let labels = [];
+    let salesValues = [];
+    let profitValues = [];
+
+
+    /* =====================================
+       ALL YEARS SELECTED
+       ===================================== */
+
+    if (selectedYear === "All") {
+
+        const salesByYear =
+            groupSum(
+                filteredData,
+                row => row.year,
+                row => row.sales
+            );
+
+
+        const profitByYear =
+            groupSum(
+                filteredData,
+                row => row.year,
+                row => row.profit
+            );
+
+
+        const years =
+            Object.keys(salesByYear)
+                .map(Number)
+                .sort(
+                    (a, b) => a - b
+                );
+
+
+        labels =
+            years.map(String);
+
+
+        salesValues =
+            years.map(
+                year =>
+                    salesByYear[year] || 0
+            );
+
+
+        profitValues =
+            years.map(
+                year =>
+                    profitByYear[year] || 0
+            );
+
+
+        setText(
+            "growthChartTitle",
+            "Revenue & Profit Growth"
         );
 
 
-    const years =
-        Object.keys(salesByYear)
-            .sort();
+        setText(
+            "growthChartSubtitle",
+            "Performance evolution across years"
+        );
+
+    }
+
+
+    /* =====================================
+       SINGLE YEAR SELECTED
+       SHOW MONTHLY TREND
+       ===================================== */
+
+    else {
+
+        const salesByMonth =
+            groupSum(
+                filteredData,
+                row => row.month,
+                row => row.sales
+            );
+
+
+        const profitByMonth =
+            groupSum(
+                filteredData,
+                row => row.month,
+                row => row.profit
+            );
+
+
+        labels =
+            [...shortMonthNames];
+
+
+        salesValues =
+            Array.from(
+                { length: 12 },
+                (_, index) =>
+                    salesByMonth[index + 1] || 0
+            );
+
+
+        profitValues =
+            Array.from(
+                { length: 12 },
+                (_, index) =>
+                    profitByMonth[index + 1] || 0
+            );
+
+
+        setText(
+            "growthChartTitle",
+            `Revenue & Profit Trend — ${selectedYear}`
+        );
+
+
+        setText(
+            "growthChartSubtitle",
+            `Monthly performance during ${selectedYear}`
+        );
+    }
 
 
     charts.growth =
         new Chart(
-            document.getElementById(
-                "growthChart"
-            ),
+            canvas,
             {
 
                 type: "line",
 
                 data: {
 
-                    labels: years,
+                    labels: labels,
 
                     datasets: [
 
                         {
                             label: "Sales",
 
-                            data:
-                                years.map(
-                                    year =>
-                                        salesByYear[year]
-                                ),
+                            data: salesValues,
 
                             borderColor:
                                 COLORS.accent,
@@ -900,26 +1357,40 @@ function updateGrowthChart() {
 
                             borderWidth: 3,
 
-                            tension: 0.4
+                            tension: 0.4,
+
+                            pointRadius: 4,
+
+                            pointHoverRadius: 7,
+
+                            pointBackgroundColor:
+                                COLORS.accent
                         },
 
                         {
                             label: "Profit",
 
-                            data:
-                                years.map(
-                                    year =>
-                                        profitByYear[year]
-                                ),
+                            data: profitValues,
 
                             borderColor:
                                 COLORS.blue,
 
+                            backgroundColor:
+                                "rgba(79,140,255,0.05)",
+
+                            fill: false,
+
                             borderWidth: 3,
 
-                            tension: 0.4
-                        }
+                            tension: 0.4,
 
+                            pointRadius: 4,
+
+                            pointHoverRadius: 7,
+
+                            pointBackgroundColor:
+                                COLORS.blue
+                        }
                     ]
                 },
 
@@ -927,15 +1398,26 @@ function updateGrowthChart() {
 
                     ...commonOptions,
 
+                    interaction: {
+                        mode: "index",
+                        intersect: false
+                    },
+
                     scales: {
 
                         x: {
                             grid: {
                                 display: false
+                            },
+
+                            ticks: {
+                                color: "#9aa9bd"
                             }
                         },
 
                         y: {
+
+                            beginAtZero: true,
 
                             grid: {
                                 color: COLORS.grid
@@ -943,9 +1425,13 @@ function updateGrowthChart() {
 
                             ticks: {
 
+                                color: "#9aa9bd",
+
                                 callback:
                                     value =>
-                                        formatCurrency(value)
+                                        formatCurrency(
+                                            value
+                                        )
                             }
                         }
                     }
@@ -956,10 +1442,15 @@ function updateGrowthChart() {
 
 
 /* =========================================
-   MARKET CHART
+   MARKET SALES CHART
    ========================================= */
 
 function updateMarketChart() {
+
+    if (!hasCanvas("marketChart")) {
+        return;
+    }
+
 
     destroyChart("market");
 
@@ -1019,6 +1510,14 @@ function updateMarketChart() {
 
                     indexAxis: "y",
 
+                    plugins: {
+                        ...commonOptions.plugins,
+
+                        legend: {
+                            display: false
+                        }
+                    },
+
                     scales: {
 
                         x: {
@@ -1031,11 +1530,14 @@ function updateMarketChart() {
 
                                 callback:
                                     value =>
-                                        formatCurrency(value)
+                                        formatCurrency(
+                                            value
+                                        )
                             }
                         },
 
                         y: {
+
                             grid: {
                                 display: false
                             }
@@ -1048,10 +1550,15 @@ function updateMarketChart() {
 
 
 /* =========================================
-   MONTHLY CHART
+   MONTHLY SALES CHART
    ========================================= */
 
 function updateMonthlyChart() {
+
+    if (!hasCanvas("monthlyChart")) {
+        return;
+    }
+
 
     destroyChart("monthly");
 
@@ -1064,16 +1571,8 @@ function updateMonthlyChart() {
         );
 
 
-    const monthNames = [
-        "Jan", "Feb", "Mar",
-        "Apr", "May", "Jun",
-        "Jul", "Aug", "Sep",
-        "Oct", "Nov", "Dec"
-    ];
-
-
     const values =
-        monthNames.map(
+        shortMonthNames.map(
             (_, index) =>
                 monthSales[index + 1] || 0
         );
@@ -1090,14 +1589,17 @@ function updateMonthlyChart() {
 
                 data: {
 
-                    labels: monthNames,
+                    labels:
+                        shortMonthNames,
 
                     datasets: [
 
                         {
-                            label: "Monthly Sales",
+                            label:
+                                "Monthly Sales",
 
-                            data: values,
+                            data:
+                                values,
 
                             borderColor:
                                 COLORS.orange,
@@ -1109,7 +1611,11 @@ function updateMonthlyChart() {
 
                             borderWidth: 3,
 
-                            tension: 0.4
+                            tension: 0.4,
+
+                            pointRadius: 3,
+
+                            pointHoverRadius: 6
                         }
                     ]
                 },
@@ -1118,15 +1624,26 @@ function updateMonthlyChart() {
 
                     ...commonOptions,
 
+                    plugins: {
+                        ...commonOptions.plugins,
+
+                        legend: {
+                            display: false
+                        }
+                    },
+
                     scales: {
 
                         x: {
+
                             grid: {
                                 display: false
                             }
                         },
 
                         y: {
+
+                            beginAtZero: true,
 
                             grid: {
                                 color: COLORS.grid
@@ -1136,7 +1653,9 @@ function updateMonthlyChart() {
 
                                 callback:
                                     value =>
-                                        formatCurrency(value)
+                                        formatCurrency(
+                                            value
+                                        )
                             }
                         }
                     }
@@ -1147,10 +1666,15 @@ function updateMonthlyChart() {
 
 
 /* =========================================
-   QUARTERLY CHART
+   QUARTERLY PERFORMANCE
    ========================================= */
 
 function updateQuarterChart() {
+
+    if (!hasCanvas("quarterChart")) {
+        return;
+    }
+
 
     destroyChart("quarter");
 
@@ -1232,12 +1756,15 @@ function updateQuarterChart() {
                     scales: {
 
                         x: {
+
                             grid: {
                                 display: false
                             }
                         },
 
                         y: {
+
+                            beginAtZero: true,
 
                             grid: {
                                 color: COLORS.grid
@@ -1247,7 +1774,9 @@ function updateQuarterChart() {
 
                                 callback:
                                     value =>
-                                        formatCurrency(value)
+                                        formatCurrency(
+                                            value
+                                        )
                             }
                         }
                     }
@@ -1263,6 +1792,11 @@ function updateQuarterChart() {
 
 function updateProfitabilityChart() {
 
+    if (!hasCanvas("profitabilityChart")) {
+        return;
+    }
+
+
     destroyChart("profitability");
 
 
@@ -1277,7 +1811,6 @@ function updateProfitabilityChart() {
                 sales: 0,
                 profit: 0
             };
-
         }
 
 
@@ -1286,7 +1819,6 @@ function updateProfitabilityChart() {
 
         marketStats[row.market].profit +=
             row.profit;
-
     });
 
 
@@ -1300,12 +1832,20 @@ function updateProfitabilityChart() {
             const stats =
                 marketStats[market];
 
-            return stats.sales
-                ? (stats.profit /
-                    stats.sales) * 100
-                : 0;
 
+            return stats.sales > 0
+                ? (
+                    stats.profit /
+                    stats.sales
+                ) * 100
+                : 0;
         });
+
+
+    const lowestMargin =
+        margins.length
+            ? Math.min(...margins)
+            : 0;
 
 
     charts.profitability =
@@ -1319,7 +1859,8 @@ function updateProfitabilityChart() {
 
                 data: {
 
-                    labels: markets,
+                    labels:
+                        markets,
 
                     datasets: [
 
@@ -1327,16 +1868,18 @@ function updateProfitabilityChart() {
                             label:
                                 "Profit Margin %",
 
-                            data: margins,
+                            data:
+                                margins,
 
                             backgroundColor:
-                                markets.map(
-                                    (_, index) =>
-                                        index ===
-                                        margins.indexOf(
-                                            Math.min(...margins)
-                                        )
+                                margins.map(
+                                    margin =>
+
+                                        margin ===
+                                        lowestMargin
+
                                             ? COLORS.red
+
                                             : COLORS.accent
                                 ),
 
@@ -1349,9 +1892,18 @@ function updateProfitabilityChart() {
 
                     ...commonOptions,
 
+                    plugins: {
+                        ...commonOptions.plugins,
+
+                        legend: {
+                            display: false
+                        }
+                    },
+
                     scales: {
 
                         x: {
+
                             grid: {
                                 display: false
                             }
@@ -1388,15 +1940,32 @@ function updateInsights() {
     if (!filteredData.length) {
 
         setText(
+            "insight1Title",
+            "No data available"
+        );
+
+        setText(
             "insight1Text",
-            "No data available for this filter combination."
+            "No records match the current filter combination."
+        );
+
+        setText(
+            "insight2Title",
+            "No data available"
+        );
+
+        setText(
+            "insight2Text",
+            "Try selecting a different filter."
         );
 
         return;
     }
 
 
-    /* Yearly growth */
+    /* =====================================
+       REVENUE TREND
+       ===================================== */
 
     const yearlySales =
         groupSum(
@@ -1408,21 +1977,36 @@ function updateInsights() {
 
     const years =
         Object.keys(yearlySales)
-            .sort();
+            .map(Number)
+            .sort(
+                (a, b) => a - b
+            );
 
 
     if (years.length >= 2) {
 
-        const first =
-            yearlySales[years[0]];
+        const firstYear =
+            years[0];
 
-        const last =
-            yearlySales[
-                years[years.length - 1]
-            ];
+        const lastYear =
+            years[years.length - 1];
+
+
+        const firstValue =
+            yearlySales[firstYear];
+
+
+        const lastValue =
+            yearlySales[lastYear];
+
 
         const growth =
-            ((last - first) / first) * 100;
+            firstValue !== 0
+                ? (
+                    (lastValue - firstValue) /
+                    firstValue
+                ) * 100
+                : 0;
 
 
         setText(
@@ -1434,19 +2018,26 @@ function updateInsights() {
         setText(
             "insight1Text",
 
-            `Sales changed by ${growth.toFixed(1)}% between ${years[0]} and ${years[years.length - 1]} within the current selection.`
+            `Sales changed by ${growth.toFixed(1)}% between ${firstYear} and ${lastYear} within the current selection.`
         );
 
     } else {
 
         setText(
+            "insight1Title",
+            `Performance during ${selectedYear}`
+        );
+
+        setText(
             "insight1Text",
-            "Select multiple years to compare revenue growth."
+            "The current view is filtered to a single year. Monthly trends are displayed in the Revenue & Profit chart."
         );
     }
 
 
-    /* Best month */
+    /* =====================================
+       BEST MONTH
+       ===================================== */
 
     const monthlySales =
         groupSum(
@@ -1456,49 +2047,45 @@ function updateInsights() {
         );
 
 
-    const bestMonth =
-        Object.keys(monthlySales)
-            .reduce(
+    const months =
+        Object.keys(monthlySales);
+
+
+    let bestMonth =
+        months.length
+            ? months.reduce(
                 (best, month) =>
+
                     monthlySales[month] >
-                    (monthlySales[best] || 0)
+                    monthlySales[best]
+
                         ? month
-                        : best,
-                1
-            );
+                        : best
+            )
+            : 1;
 
 
-    const monthNames = [
-        "",
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-        "August",
-        "September",
-        "October",
-        "November",
-        "December"
-    ];
+    const bestMonthIndex =
+        Number(bestMonth) - 1;
 
 
     setText(
         "insight2Title",
-        `${monthNames[bestMonth]} is the strongest month`
+
+        `${fullMonthNames[bestMonthIndex] || "N/A"} is the strongest month`
     );
 
 
     setText(
         "insight2Text",
 
-        `${monthNames[bestMonth]} generated ${formatCurrency(monthlySales[bestMonth] || 0)} in sales within the selected data.`
+        `${fullMonthNames[bestMonthIndex] || "This period"} generated ${formatCurrency(monthlySales[bestMonth] || 0)} in sales within the selected data.`
     );
 
 
-    /* Best market */
+    /* =====================================
+       BEST MARKET
+       ===================================== */
 
     const marketSales =
         groupSum(
@@ -1508,93 +2095,118 @@ function updateInsights() {
         );
 
 
-    const bestMarket =
-        Object.keys(marketSales)
-            .reduce(
+    const markets =
+        Object.keys(marketSales);
+
+
+    if (markets.length) {
+
+        const bestMarket =
+            markets.reduce(
                 (best, market) =>
+
                     marketSales[market] >
-                    (marketSales[best] || 0)
+                    marketSales[best]
+
                         ? market
-                        : best,
-                Object.keys(marketSales)[0]
+                        : best
             );
 
 
-    setText(
-        "insight3Title",
-        `${bestMarket} leads revenue performance`
-    );
+        setText(
+            "insight3Title",
+
+            `${bestMarket} leads revenue performance`
+        );
 
 
-    setText(
-        "insight3Text",
+        setText(
+            "insight3Text",
 
-        `${bestMarket} generated ${formatCurrency(marketSales[bestMarket] || 0)} in revenue within the current selection.`
-    );
-
-
-    /* Lowest margin */
-
-    const margins = {};
+            `${bestMarket} generated ${formatCurrency(marketSales[bestMarket])} in revenue within the current selection.`
+        );
+    }
 
 
-    Object.keys(marketSales)
+    /* =====================================
+       LOWEST MARGIN MARKET
+       ===================================== */
+
+    const marketStats = {};
+
+
+    filteredData.forEach(row => {
+
+        if (!marketStats[row.market]) {
+
+            marketStats[row.market] = {
+                sales: 0,
+                profit: 0
+            };
+        }
+
+
+        marketStats[row.market].sales +=
+            row.sales;
+
+        marketStats[row.market].profit +=
+            row.profit;
+    });
+
+
+    const marketMargins = {};
+
+
+    Object.keys(marketStats)
         .forEach(market => {
 
-            const rows =
-                filteredData.filter(
-                    row =>
-                        row.market === market
-                );
+            const stats =
+                marketStats[market];
 
 
-            const sales =
-                rows.reduce(
-                    (sum, row) =>
-                        sum + row.sales,
-                    0
-                );
+            marketMargins[market] =
+                stats.sales > 0
 
+                    ? (
+                        stats.profit /
+                        stats.sales
+                    ) * 100
 
-            const profit =
-                rows.reduce(
-                    (sum, row) =>
-                        sum + row.profit,
-                    0
-                );
-
-
-            margins[market] =
-                sales
-                    ? profit / sales * 100
                     : 0;
-
         });
 
 
-    const lowestMarket =
-        Object.keys(margins)
-            .reduce(
+    const marginMarkets =
+        Object.keys(marketMargins);
+
+
+    if (marginMarkets.length) {
+
+        const lowestMarket =
+            marginMarkets.reduce(
                 (lowest, market) =>
-                    margins[market] <
-                    margins[lowest]
+
+                    marketMargins[market] <
+                    marketMargins[lowest]
+
                         ? market
-                        : lowest,
-                Object.keys(margins)[0]
+                        : lowest
             );
 
 
-    setText(
-        "insight4Title",
-        `${lowestMarket} shows margin pressure`
-    );
+        setText(
+            "insight4Title",
+
+            `${lowestMarket} shows margin pressure`
+        );
 
 
-    setText(
-        "insight4Text",
+        setText(
+            "insight4Text",
 
-        `${lowestMarket} has a profit margin of ${(margins[lowestMarket] || 0).toFixed(2)}%, making it the lowest-margin market in the current selection.`
-    );
+            `${lowestMarket} has a profit margin of ${marketMargins[lowestMarket].toFixed(2)}%, making it the lowest-margin market in the current selection.`
+        );
+    }
 }
 
 
@@ -1603,6 +2215,27 @@ function updateInsights() {
    ========================================= */
 
 function updateRiskCard() {
+
+    if (!filteredData.length) {
+
+        setText(
+            "riskTitle",
+            "No risk data available"
+        );
+
+        setText(
+            "riskNumber",
+            "0%"
+        );
+
+        setText(
+            "riskDescription",
+            "No records match the selected filters."
+        );
+
+        return;
+    }
+
 
     const stats = {};
 
@@ -1615,14 +2248,14 @@ function updateRiskCard() {
                 sales: 0,
                 profit: 0
             };
-
         }
 
 
-        stats[row.market].sales += row.sales;
+        stats[row.market].sales +=
+            row.sales;
 
-        stats[row.market].profit += row.profit;
-
+        stats[row.market].profit +=
+            row.profit;
     });
 
 
@@ -1630,7 +2263,9 @@ function updateRiskCard() {
         Object.keys(stats);
 
 
-    if (!markets.length) return;
+    if (!markets.length) {
+        return;
+    }
 
 
     const lowestMarket =
@@ -1638,21 +2273,28 @@ function updateRiskCard() {
             (lowest, market) => {
 
                 const lowestMargin =
-                    stats[lowest].sales
-                        ? stats[lowest].profit /
-                        stats[lowest].sales
+                    stats[lowest].sales > 0
+
+                        ? (
+                            stats[lowest].profit /
+                            stats[lowest].sales
+                        ) * 100
+
                         : 0;
 
 
                 const currentMargin =
-                    stats[market].sales
-                        ? stats[market].profit /
-                        stats[market].sales
+                    stats[market].sales > 0
+
+                        ? (
+                            stats[market].profit /
+                            stats[market].sales
+                        ) * 100
+
                         : 0;
 
 
-                return currentMargin <
-                    lowestMargin
+                return currentMargin < lowestMargin
                     ? market
                     : lowest;
 
@@ -1662,13 +2304,19 @@ function updateRiskCard() {
 
 
     const margin =
-        stats[lowestMarket].profit /
-        stats[lowestMarket].sales *
-        100;
+        stats[lowestMarket].sales > 0
+
+            ? (
+                stats[lowestMarket].profit /
+                stats[lowestMarket].sales
+            ) * 100
+
+            : 0;
 
 
     setText(
         "riskTitle",
+
         `${lowestMarket} shows the lowest profitability`
     );
 
@@ -1695,6 +2343,7 @@ function setText(id, text) {
 
     const element =
         document.getElementById(id);
+
 
     if (element) {
         element.textContent = text;
@@ -1731,22 +2380,39 @@ document
             "click",
             function(event) {
 
+                const targetId =
+                    this.getAttribute(
+                        "href"
+                    );
+
+
+                if (
+                    !targetId ||
+                    targetId === "#"
+                ) {
+                    return;
+                }
+
+
                 const target =
                     document.querySelector(
-                        this.getAttribute("href")
+                        targetId
                     );
+
 
                 if (target) {
 
                     event.preventDefault();
 
+
                     window.scrollTo({
+
                         top:
                             target.offsetTop - 80,
+
                         behavior:
                             "smooth"
                     });
-
                 }
             }
         );
