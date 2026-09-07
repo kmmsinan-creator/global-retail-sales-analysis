@@ -1,607 +1,945 @@
-// ==========================================
-// GLOBAL RETAIL INTELLIGENCE
-// Interactive Analytics Charts
-// ==========================================
+/* =========================================
+   GLOBAL RETAIL INTELLIGENCE
+   INTERACTIVE ANALYTICS DASHBOARD
+   script.js
+   ========================================= */
 
 
-// Chart.js Global Configuration
+/* =========================================
+   1. CHART DEFAULT SETTINGS
+   ========================================= */
 
 Chart.defaults.color = "#9aa9bd";
 
-Chart.defaults.font.family = "'DM Sans', sans-serif";
+Chart.defaults.font.family =
+    "'DM Sans', sans-serif";
+
+Chart.defaults.font.size = 12;
 
 
-// ==========================================
-// 1. ANNUAL SALES TREND
-// ==========================================
+/* =========================================
+   2. GLOBAL CHART COLORS
+   ========================================= */
 
-const salesTrend = document.getElementById("salesTrendChart");
+const COLORS = {
+    accent: "#4fd1c5",
+    accentLight: "#7ee7dd",
 
-new Chart(salesTrend, {
+    blue: "#4f8cff",
 
-    type: "line",
+    orange: "#ffb86b",
 
-    data: {
+    red: "#ff7070",
 
-        labels: ["2011", "2012", "2013", "2014"],
+    muted: "#9aa9bd",
 
-        datasets: [
+    grid: "rgba(255,255,255,0.06)",
 
-            {
-                label: "Sales ($)",
+    transparent: "rgba(0,0,0,0)"
+};
 
-                data: [
-                    2259511,
-                    2677493,
-                    3405860,
-                    4300041
-                ],
 
-                borderColor: "#4fd1c5",
+/* =========================================
+   3. COMMON CHART OPTIONS
+   ========================================= */
 
-                backgroundColor: "rgba(79, 209, 197, 0.12)",
+const commonOptions = {
 
-                fill: true,
+    responsive: true,
 
-                tension: 0.4,
+    maintainAspectRatio: false,
 
-                borderWidth: 3,
-
-                pointBackgroundColor: "#4fd1c5",
-
-                pointRadius: 5,
-
-                pointHoverRadius: 7
-            }
-
-        ]
+    interaction: {
+        mode: "index",
+        intersect: false
     },
 
+    plugins: {
 
-    options: {
-
-        responsive: true,
-
-        maintainAspectRatio: false,
-
-        plugins: {
-
-            legend: {
-                display: false
-            },
-
-            tooltip: {
-
-                callbacks: {
-
-                    label: function(context) {
-
-                        return "$" +
-                            (context.raw / 1000000)
-                                .toFixed(2) +
-                            "M";
-                    }
-                }
-            }
+        legend: {
+            display: false
         },
 
+        tooltip: {
 
-        scales: {
+            backgroundColor: "#101f35",
 
-            x: {
+            titleColor: "#f4f7fb",
 
-                grid: {
-                    display: false
-                }
+            bodyColor: "#9aa9bd",
 
-            },
+            borderColor: "rgba(255,255,255,0.10)",
 
-            y: {
+            borderWidth: 1,
 
-                grid: {
-                    color: "rgba(255,255,255,0.05)"
+            padding: 12,
+
+            cornerRadius: 8,
+
+            displayColors: true
+        }
+    },
+
+    animation: {
+
+        duration: 1000,
+
+        easing: "easeOutQuart"
+    }
+};
+
+
+/* =========================================
+   4. NUMBER FORMATTING FUNCTIONS
+   ========================================= */
+
+function formatCurrency(value) {
+
+    if (value >= 1000000) {
+        return "$" + (value / 1000000).toFixed(2) + "M";
+    }
+
+    if (value >= 1000) {
+        return "$" + (value / 1000).toFixed(1) + "K";
+    }
+
+    return "$" + value;
+}
+
+
+function formatNumber(value) {
+
+    if (value >= 1000000) {
+        return (value / 1000000).toFixed(2) + "M";
+    }
+
+    if (value >= 1000) {
+        return (value / 1000).toFixed(1) + "K";
+    }
+
+    return value;
+}
+
+
+/* =========================================
+   5. REVENUE & PROFIT GROWTH CHART
+   ========================================= */
+
+const growthCanvas =
+    document.getElementById("growthChart");
+
+if (growthCanvas) {
+
+    new Chart(growthCanvas, {
+
+        type: "line",
+
+        data: {
+
+            labels: [
+                "2011",
+                "2012",
+                "2013",
+                "2014"
+            ],
+
+            datasets: [
+
+                {
+                    label: "Sales",
+
+                    data: [
+                        2259511,
+                        2677493,
+                        3405860,
+                        4300041
+                    ],
+
+                    borderColor: COLORS.accent,
+
+                    backgroundColor:
+                        "rgba(79,209,197,0.12)",
+
+                    borderWidth: 3,
+
+                    tension: 0.4,
+
+                    fill: true,
+
+                    pointRadius: 4,
+
+                    pointHoverRadius: 7,
+
+                    pointBackgroundColor:
+                        COLORS.accent
                 },
 
-                ticks: {
+                {
+                    label: "Profit",
 
-                    callback: function(value) {
+                    data: [
+                        248941,
+                        307415,
+                        406935,
+                        504167
+                    ],
 
-                        return "$" +
-                            (value / 1000000) +
-                            "M";
+                    borderColor: COLORS.blue,
+
+                    backgroundColor:
+                        "rgba(79,140,255,0.05)",
+
+                    borderWidth: 3,
+
+                    tension: 0.4,
+
+                    fill: false,
+
+                    pointRadius: 4,
+
+                    pointHoverRadius: 7,
+
+                    pointBackgroundColor:
+                        COLORS.blue
+                }
+            ]
+        },
+
+        options: {
+
+            ...commonOptions,
+
+            scales: {
+
+                x: {
+
+                    grid: {
+                        display: false
+                    },
+
+                    border: {
+                        display: false
+                    }
+                },
+
+                y: {
+
+                    beginAtZero: true,
+
+                    grid: {
+                        color: COLORS.grid
+                    },
+
+                    border: {
+                        display: false
+                    },
+
+                    ticks: {
+
+                        callback: function(value) {
+                            return formatCurrency(value);
+                        }
                     }
                 }
             }
         }
-    }
-
-});
-
-
-// ==========================================
-// 2. SALES BY MARKET
-// ==========================================
-
-const marketSales = document.getElementById("marketSalesChart");
-
-new Chart(marketSales, {
-
-    type: "bar",
-
-    data: {
-
-        labels: [
-            "APAC",
-            "EU",
-            "North America",
-            "LATAM",
-            "EMEA",
-            "Africa"
-        ],
-
-        datasets: [
-
-            {
-
-                label: "Sales",
-
-                data: [
-                    3585833,
-                    2938139,
-                    2364286,
-                    2164687,
-                    806184,
-                    783776
-                ],
-
-                backgroundColor: [
-                    "#4fd1c5",
-                    "#4f8cff",
-                    "#7ee7dd",
-                    "#668cff",
-                    "#ff7070",
-                    "#ffb86b"
-                ],
-
-                borderRadius: 6
-
-            }
-
-        ]
-
-    },
+    });
+}
 
 
-    options: {
+/* =========================================
+   6. SALES BY MARKET CHART
+   ========================================= */
 
-        indexAxis: "y",
+const marketCanvas =
+    document.getElementById("marketChart");
 
-        responsive: true,
+if (marketCanvas) {
 
-        maintainAspectRatio: false,
+    new Chart(marketCanvas, {
 
-        plugins: {
+        type: "bar",
 
-            legend: {
-                display: false
-            }
+        data: {
 
+            labels: [
+                "APAC",
+                "EU",
+                "North America",
+                "LATAM",
+                "EMEA",
+                "Africa"
+            ],
+
+            datasets: [
+
+                {
+                    label: "Sales",
+
+                    data: [
+                        3585833,
+                        2938139,
+                        2364286,
+                        2164687,
+                        806184,
+                        783776
+                    ],
+
+                    backgroundColor: [
+
+                        COLORS.accent,
+
+                        COLORS.blue,
+
+                        "#6c8cff",
+
+                        COLORS.orange,
+
+                        "#64748b",
+
+                        "#38bdf8"
+                    ],
+
+                    borderRadius: 6,
+
+                    borderSkipped: false
+                }
+            ]
         },
 
+        options: {
 
-        scales: {
+            ...commonOptions,
 
-            x: {
+            indexAxis: "y",
 
-                grid: {
-                    color: "rgba(255,255,255,0.05)"
+            scales: {
+
+                x: {
+
+                    grid: {
+                        color: COLORS.grid
+                    },
+
+                    border: {
+                        display: false
+                    },
+
+                    ticks: {
+
+                        callback: function(value) {
+                            return formatCurrency(value);
+                        }
+                    }
                 },
 
-                ticks: {
+                y: {
 
-                    callback: function(value) {
+                    grid: {
+                        display: false
+                    },
 
-                        return "$" +
-                            (value / 1000000).toFixed(1) +
-                            "M";
+                    border: {
+                        display: false
                     }
                 }
-
-            },
-
-            y: {
-
-                grid: {
-                    display: false
-                }
-
             }
-
         }
-
-    }
-
-});
+    });
+}
 
 
-// ==========================================
-// 3. MONTHLY SALES PATTERN
-// ==========================================
+/* =========================================
+   7. MONTHLY SALES TREND
+   ========================================= */
 
-const monthlySales = document.getElementById("monthlySalesChart");
+const monthlyCanvas =
+    document.getElementById("monthlyChart");
 
-new Chart(monthlySales, {
+if (monthlyCanvas) {
 
-    type: "line",
+    new Chart(monthlyCanvas, {
 
-    data: {
+        type: "line",
 
-        labels: [
-            "Jan",
-            "Feb",
-            "Mar",
-            "Apr",
-            "May",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-            "Oct",
-            "Nov",
-            "Dec"
-        ],
+        data: {
 
-        datasets: [
+            labels: [
 
-            {
+                "Jan",
+                "Feb",
+                "Mar",
+                "Apr",
+                "May",
+                "Jun",
 
-                label: "Monthly Sales",
+                "Jul",
+                "Aug",
+                "Sep",
+                "Oct",
+                "Nov",
+                "Dec"
+            ],
 
-                data: [
-                    675141,
-                    543768,
-                    770519,
-                    698603,
-                    904061,
-                    1269751,
-                    749423,
-                    1293852,
-                    1437432,
-                    1168220,
-                    1551319,
-                    1580816
-                ],
+            datasets: [
 
-                borderColor: "#4f8cff",
+                {
+                    label: "Monthly Sales",
 
-                backgroundColor: "rgba(79,140,255,.1)",
+                    data: [
 
-                fill: true,
+                        675141,
+                        543768,
+                        770519,
+                        698603,
+                        904061,
+                        1269751,
 
-                tension: 0.35,
+                        749423,
+                        1293852,
+                        1437432,
+                        1168220,
+                        1551319,
+                        1580816
+                    ],
 
-                borderWidth: 2,
+                    borderColor:
+                        COLORS.orange,
 
-                pointRadius: 3
+                    backgroundColor:
+                        "rgba(255,184,107,0.10)",
 
-            }
+                    fill: true,
 
-        ]
+                    borderWidth: 3,
 
-    },
+                    tension: 0.4,
 
+                    pointRadius: 3,
 
-    options: {
+                    pointHoverRadius: 6,
 
-        responsive: true,
-
-        maintainAspectRatio: false,
-
-        plugins: {
-
-            legend: {
-                display: false
-            }
-
+                    pointBackgroundColor:
+                        COLORS.orange
+                }
+            ]
         },
 
+        options: {
 
-        scales: {
+            ...commonOptions,
 
-            x: {
+            scales: {
 
-                grid: {
-                    display: false
-                }
+                x: {
 
-            },
+                    grid: {
+                        display: false
+                    },
 
-            y: {
-
-                grid: {
-                    color: "rgba(255,255,255,.05)"
+                    border: {
+                        display: false
+                    }
                 },
 
-                ticks: {
+                y: {
 
-                    callback: function(value) {
+                    beginAtZero: false,
 
-                        return "$" +
-                            (value / 1000000).toFixed(1) +
-                            "M";
+                    grid: {
+                        color: COLORS.grid
+                    },
+
+                    border: {
+                        display: false
+                    },
+
+                    ticks: {
+
+                        callback: function(value) {
+                            return formatCurrency(value);
+                        }
                     }
                 }
-
             }
-
         }
-
-    }
-
-});
+    });
+}
 
 
-// ==========================================
-// 4. QUARTERLY SALES VS PROFIT
-// ==========================================
+/* =========================================
+   8. QUARTERLY PERFORMANCE
+   ========================================= */
 
-const quarterly = document.getElementById("quarterlyChart");
+const quarterCanvas =
+    document.getElementById("quarterChart");
 
-new Chart(quarterly, {
+if (quarterCanvas) {
 
-    type: "bar",
+    new Chart(quarterCanvas, {
 
-    data: {
+        type: "bar",
 
-        labels: ["Q1", "Q2", "Q3", "Q4"],
+        data: {
 
-        datasets: [
+            labels: [
+                "Q1",
+                "Q2",
+                "Q3",
+                "Q4"
+            ],
 
-            {
+            datasets: [
 
-                label: "Sales",
+                {
+                    label: "Sales",
 
-                data: [
-                    1989428,
-                    2872415,
-                    3480707,
-                    4300355
-                ],
+                    data: [
 
-                backgroundColor: "#4f8cff",
+                        1989428,
+                        2872415,
+                        3480707,
+                        4300355
+                    ],
 
-                borderRadius: 6
+                    backgroundColor:
+                        "rgba(79,209,197,0.75)",
 
-            },
+                    borderRadius: 8,
 
+                    borderSkipped: false
+                },
 
-            {
+                {
+                    label: "Profit",
 
-                label: "Profit",
+                    data: [
 
-                data: [
-                    238555,
-                    325103,
-                    400362,
-                    503437
-                ],
+                        238555,
+                        325104,
+                        400362,
+                        503437
+                    ],
 
-                backgroundColor: "#4fd1c5",
+                    backgroundColor:
+                        "rgba(79,140,255,0.75)",
 
-                borderRadius: 6
+                    borderRadius: 8,
 
-            }
-
-        ]
-
-    },
-
-
-    options: {
-
-        responsive: true,
-
-        maintainAspectRatio: false,
-
-        plugins: {
-
-            legend: {
-
-                position: "top",
-
-                labels: {
-                    boxWidth: 10
+                    borderSkipped: false
                 }
-
-            }
-
+            ]
         },
 
+        options: {
 
-        scales: {
+            ...commonOptions,
 
-            x: {
+            scales: {
 
-                grid: {
-                    display: false
-                }
+                x: {
 
-            },
+                    grid: {
+                        display: false
+                    },
 
-            y: {
-
-                grid: {
-                    color: "rgba(255,255,255,.05)"
+                    border: {
+                        display: false
+                    }
                 },
 
-                ticks: {
+                y: {
 
-                    callback: function(value) {
+                    grid: {
+                        color: COLORS.grid
+                    },
 
-                        return "$" +
-                            (value / 1000000).toFixed(1) +
-                            "M";
+                    border: {
+                        display: false
+                    },
+
+                    ticks: {
+
+                        callback: function(value) {
+                            return formatCurrency(value);
+                        }
                     }
                 }
-
             }
-
         }
-
-    }
-
-});
+    });
+}
 
 
-// ==========================================
-// 5. PROFIT MARGIN BY MARKET
-// ==========================================
+/* =========================================
+   9. MARKET PROFITABILITY CHART
+   ========================================= */
 
-const profitMargin = document.getElementById("profitMarginChart");
+const profitabilityCanvas =
+    document.getElementById("profitabilityChart");
 
-new Chart(profitMargin, {
+if (profitabilityCanvas) {
 
-    type: "bar",
+    new Chart(profitabilityCanvas, {
 
-    data: {
+        type: "bar",
 
-        labels: [
-            "North America",
-            "EU",
-            "APAC",
-            "Africa",
-            "LATAM",
-            "EMEA"
-        ],
+        data: {
 
-        datasets: [
+            labels: [
 
-            {
+                "APAC",
+                "EU",
+                "North America",
+                "LATAM",
+                "EMEA",
+                "Africa"
+            ],
 
-                label: "Profit Margin (%)",
+            datasets: [
 
-                data: [
-                    12.87,
-                    12.69,
-                    12.16,
-                    11.34,
-                    10.24,
-                    5.45
-                ],
+                {
+                    label: "Profit Margin %",
 
-                backgroundColor: [
-                    "#4fd1c5",
-                    "#4fd1c5",
-                    "#4fd1c5",
-                    "#4f8cff",
-                    "#ffb86b",
-                    "#ff7070"
-                ],
+                    data: [
 
-                borderRadius: 7
+                        12.16,
+                        12.69,
+                        12.87,
+                        10.24,
+                        5.45,
+                        11.34
+                    ],
 
-            }
+                    backgroundColor: [
 
-        ]
+                        COLORS.accent,
 
-    },
+                        COLORS.blue,
 
+                        "#6c8cff",
 
-    options: {
+                        COLORS.orange,
 
-        responsive: true,
+                        COLORS.red,
 
-        maintainAspectRatio: false,
+                        "#38bdf8"
+                    ],
 
-        plugins: {
+                    borderRadius: 7,
 
-            legend: {
-                display: false
-            },
-
-            tooltip: {
-
-                callbacks: {
-
-                    label: function(context) {
-
-                        return context.raw + "%";
-                    }
-
+                    borderSkipped: false
                 }
-
-            }
-
+            ]
         },
 
+        options: {
 
-        scales: {
+            ...commonOptions,
 
-            x: {
+            scales: {
 
-                grid: {
-                    display: false
-                }
+                x: {
 
-            },
+                    grid: {
+                        display: false
+                    },
 
-            y: {
-
-                beginAtZero: true,
-
-                grid: {
-                    color: "rgba(255,255,255,.05)"
+                    border: {
+                        display: false
+                    }
                 },
 
-                ticks: {
+                y: {
 
-                    callback: function(value) {
+                    beginAtZero: true,
 
-                        return value + "%";
+                    max: 15,
+
+                    grid: {
+                        color: COLORS.grid
+                    },
+
+                    border: {
+                        display: false
+                    },
+
+                    ticks: {
+
+                        callback: function(value) {
+                            return value + "%";
+                        }
                     }
-
                 }
-
             }
-
         }
+    });
+}
 
-    }
 
+/* =========================================
+   10. SMOOTH NAVIGATION
+   ========================================= */
+
+document.querySelectorAll(
+    'a[href^="#"]'
+).forEach(anchor => {
+
+    anchor.addEventListener(
+        "click",
+        function(event) {
+
+            const targetId =
+                this.getAttribute("href");
+
+            if (
+                targetId &&
+                targetId !== "#"
+            ) {
+
+                const target =
+                    document.querySelector(
+                        targetId
+                    );
+
+                if (target) {
+
+                    event.preventDefault();
+
+                    const navHeight =
+                        document.querySelector(
+                            ".navbar"
+                        )?.offsetHeight || 0;
+
+                    const position =
+                        target.offsetTop -
+                        navHeight -
+                        20;
+
+                    window.scrollTo({
+
+                        top: position,
+
+                        behavior: "smooth"
+                    });
+                }
+            }
+        }
+    );
 });
 
 
-// ==========================================
-// SCROLL REVEAL EFFECT
-// ==========================================
+/* =========================================
+   11. ACTIVE NAVIGATION LINK
+   ========================================= */
 
-const observer = new IntersectionObserver(
+const sections =
+    document.querySelectorAll("section[id]");
 
-    (entries) => {
+const navLinks =
+    document.querySelectorAll(
+        '.nav-links a[href^="#"]'
+    );
 
-        entries.forEach(entry => {
 
-            if (entry.isIntersecting) {
+function updateActiveNavigation() {
 
-                entry.target.classList.add("visible");
+    let currentSection = "";
 
-            }
+    sections.forEach(section => {
 
-        });
+        const sectionTop =
+            section.offsetTop - 150;
 
-    },
+        const sectionBottom =
+            sectionTop +
+            section.offsetHeight;
 
-    {
-        threshold: 0.1
-    }
+        if (
+            window.scrollY >= sectionTop &&
+            window.scrollY < sectionBottom
+        ) {
 
+            currentSection =
+                section.getAttribute("id");
+        }
+    });
+
+
+    navLinks.forEach(link => {
+
+        link.classList.remove("active");
+
+        if (
+            link.getAttribute("href") ===
+            "#" + currentSection
+        ) {
+
+            link.classList.add("active");
+        }
+    });
+}
+
+
+window.addEventListener(
+    "scroll",
+    updateActiveNavigation
 );
 
 
-document.querySelectorAll(
-    ".kpi-card, .chart-card, .insight-card, .risk-card"
-).forEach(el => {
+/* =========================================
+   12. NAVBAR SCROLL EFFECT
+   ========================================= */
 
-    observer.observe(el);
+const navbar =
+    document.querySelector(".navbar");
 
+
+window.addEventListener(
+    "scroll",
+    function() {
+
+        if (!navbar) return;
+
+        if (window.scrollY > 40) {
+
+            navbar.style.boxShadow =
+                "0 10px 30px rgba(0,0,0,0.18)";
+
+        } else {
+
+            navbar.style.boxShadow =
+                "none";
+        }
+    }
+);
+
+
+/* =========================================
+   13. KPI CARD HOVER EFFECT
+   ========================================= */
+
+const kpiCards =
+    document.querySelectorAll(".kpi-card");
+
+
+kpiCards.forEach(card => {
+
+    card.addEventListener(
+        "mouseenter",
+        function() {
+
+            this.style.transform =
+                "translateY(-5px)";
+        }
+    );
+
+    card.addEventListener(
+        "mouseleave",
+        function() {
+
+            this.style.transform =
+                "translateY(0)";
+        }
+    );
 });
+
+
+/* =========================================
+   14. INSIGHT CARD INTERACTION
+   ========================================= */
+
+const insightCards =
+    document.querySelectorAll(".insight-card");
+
+
+insightCards.forEach(card => {
+
+    card.addEventListener(
+        "mouseenter",
+        function() {
+
+            this.style.transform =
+                "translateY(-5px)";
+        }
+    );
+
+    card.addEventListener(
+        "mouseleave",
+        function() {
+
+            this.style.transform =
+                "translateY(0)";
+        }
+    );
+});
+
+
+/* =========================================
+   15. SCROLL REVEAL ANIMATION
+   ========================================= */
+
+const revealElements =
+    document.querySelectorAll(
+
+        ".kpi-card, " +
+        ".chart-card, " +
+        ".insight-card, " +
+        ".risk-card, " +
+        ".workflow-step"
+    );
+
+
+const revealObserver =
+    new IntersectionObserver(
+
+        function(entries) {
+
+            entries.forEach(entry => {
+
+                if (entry.isIntersecting) {
+
+                    entry.target.style.opacity = "1";
+
+                    entry.target.style.transform =
+                        "translateY(0)";
+
+                    revealObserver.unobserve(
+                        entry.target
+                    );
+                }
+            });
+        },
+
+        {
+            threshold: 0.1
+        }
+    );
+
+
+revealElements.forEach(element => {
+
+    element.style.opacity = "0";
+
+    element.style.transform =
+        "translateY(25px)";
+
+    element.style.transition =
+        "opacity 0.6s ease, transform 0.6s ease";
+
+    revealObserver.observe(element);
+});
+
+
+/* =========================================
+   16. CONSOLE PROJECT MESSAGE
+   ========================================= */
+
+console.log(
+    "%cGlobal Retail Intelligence Dashboard Loaded",
+    "color:#4fd1c5; font-size:16px; font-weight:bold;"
+);
+
+console.log(
+    "Data Period: 2011–2014 | Markets: 6 | Analytics: SQL + Power BI + JavaScript"
+);
