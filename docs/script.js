@@ -7,6 +7,8 @@ let retailData = [];
 let filteredData = [];
 
 let selectedYear = "All";
+let selectedYearFrom = null;
+let selectedYearTo = null;
 let selectedMarket = "All";
 
 let charts = {};
@@ -636,7 +638,7 @@ Papa.parse(
 
 
 /* =========================================
-   CREATE YEAR SLICERS
+   CREATE YEAR RANGE SLICER
    ========================================= */
 
 function createYearFilters() {
@@ -658,40 +660,489 @@ function createYearFilters() {
     const years =
         [...new Set(
             retailData
-                .map(row => row.year)
-                .filter(Boolean)
+                .map(row => Number(row.year))
+                .filter(year => Number.isFinite(year))
         )]
         .sort(
             (a, b) => a - b
         );
 
 
-    container.innerHTML = "";
+    if (!years.length) {
+        container.innerHTML =
+            '<div class="year-range-all">No years available</div>';
+        return;
+    }
 
 
-    container.appendChild(
+    const minYear = years[0];
+    const maxYear = years[years.length - 1];
 
-        createFilterButton(
-            "All Years",
-            "All",
-            "year",
-            true
+
+    selectedYearFrom = minYear;
+    selectedYearTo = maxYear;
+    selectedYear = "All";
+
+
+    container.innerHTML = `
+        <div class="year-range-values">
+
+            <div
+                class="year-range-value"
+                id="yearFromValue"
+            >
+                ${minYear}
+            </div>
+
+            <div
+                class="year-range-summary"
+                id="yearRangeSummary"
+            >
+                All Years
+            </div>
+
+            <div
+                class="year-range-value"
+                id="yearToValue"
+            >
+                ${maxYear}
+            </div>
+
+        </div>
+
+
+        <div class="year-range-track">
+
+            <div class="year-range-base"></div>
+
+            <div
+                class="year-range-progress"
+                id="yearRangeProgress"
+            ></div>
+
+            <input
+                type="range"
+                id="yearFromSlider"
+                class="year-range-slider year-range-slider-from"
+                min="${minYear}"
+                max="${maxYear}"
+                step="1"
+                value="${minYear}"
+                aria-label="Starting year"
+            >
+
+            <input
+                type="range"
+                id="yearToSlider"
+                class="year-range-slider year-range-slider-to"
+                min="${minYear}"
+                max="${maxYear}"
+                step="1"
+                value="${maxYear}"
+                aria-label="Ending year"
+            >
+
+        </div>
+
+
+        <div class="year-range-ticks">
+
+            ${years.map(year => `
+                <span
+                    class="year-range-tick active"
+                    data-year="${year}"
+                >
+                    ${year}
+                </span>
+            `).join("")}
+
+        </div>
+
+
+        <button
+            type="button"
+            class="year-range-all"
+            id="allYearsButton"
+        >
+            All Years
+        </button>
+    `;
+
+
+    const fromSlider =
+        document.getElementById(
+            "yearFromSlider"
+        );
+
+
+    const toSlider =
+        document.getElementById(
+            "yearToSlider"
+        );
+
+
+    if (fromSlider) {
+        fromSlider.addEventListener(
+            "input",
+            handleYearRangeInput
+        );
+    }
+
+
+    if (toSlider) {
+        toSlider.addEventListener(
+            "input",
+            handleYearRangeInput
+        );
+    }
+
+
+    document
+        .querySelectorAll(
+            ".year-range-tick"
         )
+        .forEach(tick => {
+
+            tick.addEventListener(
+                "click",
+                function() {
+
+                    const year =
+                        Number(this.dataset.year);
+
+                    setYearRange(
+                        year,
+                        year
+                    );
+                }
+            );
+        });
+
+
+    document
+        .getElementById("allYearsButton")
+        ?.addEventListener(
+            "click",
+            function() {
+
+                setYearRange(
+                    minYear,
+                    maxYear
+                );
+            }
+        );
+
+
+    updateYearRangeUI();
+}
+
+
+/* =========================================
+   YEAR RANGE INPUT
+   ========================================= */
+
+function handleYearRangeInput(event) {
+
+    const fromSlider =
+        document.getElementById(
+            "yearFromSlider"
+        );
+
+
+    const toSlider =
+        document.getElementById(
+            "yearToSlider"
+        );
+
+
+    if (!fromSlider || !toSlider) {
+        return;
+    }
+
+
+    let from =
+        Number(fromSlider.value);
+
+
+    let to =
+        Number(toSlider.value);
+
+
+    if (from > to) {
+
+        if (event.target === fromSlider) {
+            from = to;
+            fromSlider.value = from;
+        } else {
+            to = from;
+            toSlider.value = to;
+        }
+    }
+
+
+    selectedYearFrom = from;
+    selectedYearTo = to;
+
+
+    selectedYear =
+        from === to
+            ? String(from)
+            : "All";
+
+
+    updateYearRangeUI();
+
+    applyFilters();
+}
+
+
+/* =========================================
+   SET YEAR RANGE
+   ========================================= */
+
+function setYearRange(from, to) {
+
+    const minYear = getMinYear();
+    const maxYear = getMaxYear();
+
+
+    if (
+        minYear === null ||
+        maxYear === null
+    ) {
+        return;
+    }
+
+
+    from = Math.max(
+        minYear,
+        Math.min(Number(from), maxYear)
     );
 
 
-    years.forEach(year => {
+    to = Math.max(
+        minYear,
+        Math.min(Number(to), maxYear)
+    );
 
-        container.appendChild(
 
-            createFilterButton(
-                String(year),
-                String(year),
-                "year",
-                false
-            )
+    if (from > to) {
+        [from, to] = [to, from];
+    }
+
+
+    selectedYearFrom = from;
+    selectedYearTo = to;
+
+
+    selectedYear =
+        from === to
+            ? String(from)
+            : "All";
+
+
+    const fromSlider =
+        document.getElementById(
+            "yearFromSlider"
         );
-    });
+
+
+    const toSlider =
+        document.getElementById(
+            "yearToSlider"
+        );
+
+
+    if (fromSlider) {
+        fromSlider.value = from;
+    }
+
+
+    if (toSlider) {
+        toSlider.value = to;
+    }
+
+
+    updateYearRangeUI();
+
+    applyFilters();
+}
+
+
+/* =========================================
+   YEAR RANGE HELPERS
+   ========================================= */
+
+function getAvailableYears() {
+
+    return [
+        ...new Set(
+            retailData
+                .map(row => Number(row.year))
+                .filter(year => Number.isFinite(year))
+        )
+    ].sort(
+        (a, b) => a - b
+    );
+}
+
+
+function getMinYear() {
+
+    const years =
+        getAvailableYears();
+
+    return years.length
+        ? years[0]
+        : null;
+}
+
+
+function getMaxYear() {
+
+    const years =
+        getAvailableYears();
+
+    return years.length
+        ? years[years.length - 1]
+        : null;
+}
+
+
+function updateYearRangeUI() {
+
+    if (
+        selectedYearFrom === null ||
+        selectedYearTo === null
+    ) {
+        return;
+    }
+
+
+    const fromValue =
+        document.getElementById(
+            "yearFromValue"
+        );
+
+
+    const toValue =
+        document.getElementById(
+            "yearToValue"
+        );
+
+
+    const summary =
+        document.getElementById(
+            "yearRangeSummary"
+        );
+
+
+    const progress =
+        document.getElementById(
+            "yearRangeProgress"
+        );
+
+
+    const fromSlider =
+        document.getElementById(
+            "yearFromSlider"
+        );
+
+
+    const toSlider =
+        document.getElementById(
+            "yearToSlider"
+        );
+
+
+    if (fromValue) {
+        fromValue.textContent =
+            selectedYearFrom;
+    }
+
+
+    if (toValue) {
+        toValue.textContent =
+            selectedYearTo;
+    }
+
+
+    if (summary) {
+
+        if (
+            selectedYearFrom === getMinYear() &&
+            selectedYearTo === getMaxYear()
+        ) {
+            summary.textContent =
+                "All Years";
+
+        } else if (
+            selectedYearFrom === selectedYearTo
+        ) {
+            summary.textContent =
+                String(selectedYearFrom);
+
+        } else {
+            summary.textContent =
+                `${selectedYearFrom} — ${selectedYearTo}`;
+        }
+    }
+
+
+    if (
+        progress &&
+        fromSlider &&
+        toSlider
+    ) {
+
+        const min =
+            Number(fromSlider.min);
+
+        const max =
+            Number(fromSlider.max);
+
+        const from =
+            Number(fromSlider.value);
+
+        const to =
+            Number(toSlider.value);
+
+        const range =
+            max - min;
+
+        const left =
+            range === 0
+                ? 0
+                : ((from - min) / range) * 100;
+
+        const right =
+            range === 0
+                ? 100
+                : ((to - min) / range) * 100;
+
+        progress.style.left =
+            `${left}%`;
+
+        progress.style.width =
+            `${right - left}%`;
+    }
+
+
+    document
+        .querySelectorAll(
+            ".year-range-tick"
+        )
+        .forEach(tick => {
+
+            const year =
+                Number(tick.dataset.year);
+
+            tick.classList.toggle(
+                "active",
+                year >= selectedYearFrom &&
+                year <= selectedYearTo
+            );
+        });
 }
 
 
@@ -876,21 +1327,32 @@ function updateActiveButton(
 
 function applyFilters() {
 
+    const from =
+        selectedYearFrom !== null
+            ? selectedYearFrom
+            : getMinYear();
+
+
+    const to =
+        selectedYearTo !== null
+            ? selectedYearTo
+            : getMaxYear();
+
+
     filteredData =
         retailData.filter(row => {
 
+            const year =
+                Number(row.year);
+
             const yearMatch =
-
-                selectedYear === "All" ||
-
-                String(row.year) ===
-                String(selectedYear);
+                Number.isFinite(year) &&
+                year >= from &&
+                year <= to;
 
 
             const marketMatch =
-
                 selectedMarket === "All" ||
-
                 String(row.market) ===
                 String(selectedMarket);
 
@@ -906,7 +1368,8 @@ function applyFilters() {
         "Filtered records:",
         filteredData.length,
         {
-            selectedYear,
+            selectedYearFrom,
+            selectedYearTo,
             selectedMarket
         }
     );
@@ -926,23 +1389,45 @@ document
         "click",
         function() {
 
+            const minYear =
+                getMinYear();
+
+            const maxYear =
+                getMaxYear();
+
+
+            selectedYearFrom = minYear;
+            selectedYearTo = maxYear;
             selectedYear = "All";
             selectedMarket = "All";
 
 
-            document
-                .querySelectorAll(
-                    "#yearFilters .filter-btn"
-                )
-                .forEach(button => {
+            const fromSlider =
+                document.getElementById(
+                    "yearFromSlider"
+                );
 
-                    button.classList.toggle(
-                        "active",
 
-                        button.dataset.value ===
-                        "All"
-                    );
-                });
+            const toSlider =
+                document.getElementById(
+                    "yearToSlider"
+                );
+
+
+            if (
+                fromSlider &&
+                minYear !== null
+            ) {
+                fromSlider.value = minYear;
+            }
+
+
+            if (
+                toSlider &&
+                maxYear !== null
+            ) {
+                toSlider.value = maxYear;
+            }
 
 
             document
@@ -953,18 +1438,15 @@ document
 
                     button.classList.toggle(
                         "active",
-
                         button.dataset.value ===
                         "All"
                     );
                 });
 
 
-            filteredData =
-                [...retailData];
+            updateYearRangeUI();
 
-
-            updateDashboard();
+            applyFilters();
 
 
             console.log(
@@ -1087,10 +1569,21 @@ function updateSummary() {
     const summary = [];
 
 
-    if (selectedYear === "All") {
+    if (
+        selectedYearFrom === getMinYear() &&
+        selectedYearTo === getMaxYear()
+    ) {
         summary.push("All Years");
+
+    } else if (
+        selectedYearFrom === selectedYearTo
+    ) {
+        summary.push(String(selectedYearFrom));
+
     } else {
-        summary.push(selectedYear);
+        summary.push(
+            `${selectedYearFrom} — ${selectedYearTo}`
+        );
     }
 
 
@@ -1215,7 +1708,7 @@ function updateGrowthChart() {
        ALL YEARS SELECTED
        ===================================== */
 
-    if (selectedYear === "All") {
+    if (selectedYearFrom !== selectedYearTo) {
 
         const salesByYear =
             groupSum(
@@ -1318,13 +1811,13 @@ function updateGrowthChart() {
 
         setText(
             "growthChartTitle",
-            `Revenue & Profit Trend — ${selectedYear}`
+            `Revenue & Profit Trend — ${selectedYearFrom}`
         );
 
 
         setText(
             "growthChartSubtitle",
-            `Monthly performance during ${selectedYear}`
+            `Monthly performance during ${selectedYearFrom}`
         );
     }
 
@@ -2025,7 +2518,7 @@ function updateInsights() {
 
         setText(
             "insight1Title",
-            `Performance during ${selectedYear}`
+            `Performance during ${selectedYearFrom}`
         );
 
         setText(
