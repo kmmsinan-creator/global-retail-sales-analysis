@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Global Retail Intelligence — production-style retail analytics, forecasting, anomaly monitoring and scenario planning.">
+<title>Global Retail Intelligence | Decision Intelligence Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+</head>
+<body>
+<div class="app-shell">
+<header class="topbar">
+  <div class="brand"><span class="brand-mark"></span><div><strong>GLOBAL RETAIL</strong><span>DECISION INTELLIGENCE</span></div></div>
+  <nav>
+    <a href="#overview">Overview</a><a href="#markets">Markets</a><a href="#products">Products</a><a href="#forecast">Forecast</a><a href="#anomalies">Anomalies</a><a href="#explorer">Explorer</a>
+  </nav>
+  <div class="top-actions"><span id="dataStatus" class="status-dot">Loading data…</span><button id="exportReport" class="btn ghost">Export report</button></div>
+</header>
+
+<main>
+<section class="hero" id="overview">
+  <div class="hero-copy"><span class="eyebrow">RETAIL OPERATING VIEW · 51K+ TRANSACTION LINES</span><h1>From retail data to <em>management decisions.</em></h1><p>A decision-intelligence workspace for revenue, margin, markets, products, customers, logistics and forward-looking scenarios.</p><div class="hero-actions"><a class="btn primary" href="#explorer">Open data explorer</a><button class="btn secondary" id="resetAll">Reset analysis</button></div></div>
+  <div class="hero-panel"><div class="hero-panel-head"><span>LIVE FILTER CONTEXT</span><span id="filterContext">All data</span></div><div class="context-grid"><div><small>PERIOD</small><strong id="contextPeriod">2011 — 2014</strong></div><div><small>MARKET</small><strong id="contextMarket">All Markets</strong></div><div><small>RECORDS</small><strong id="contextRecords">—</strong></div><div><small>LAST REFRESH</small><strong id="refreshTime">—</strong></div></div><div class="signal-bar"><span></span><div><strong>Decision mode</strong><small>Filtered analytics are recalculated client-side.</small></div></div></div>
+</section>
+
+<section class="control-bar" id="filters">
+  <div class="control-title"><span class="eyebrow">CONTROL LAYER</span><h2>Filter the business</h2><p>All analytical views respond to the same filter context.</p></div>
+  <div class="control-fields">
+    <label>YEAR RANGE<div class="range-wrap"><div class="range-values"><b id="fromYearLabel">2011</b><span id="rangeLabel">All years</span><b id="toYearLabel">2014</b></div><div class="range-track"><div id="rangeFill"></div><input id="yearFrom" type="range"><input id="yearTo" type="range"></div></div></label>
+    <label>MARKET<select id="marketSelect"><option value="All">All Markets</option></select></label>
+    <label>CATEGORY<select id="categorySelect"><option value="All">All Categories</option></select></label>
+    <label>SEGMENT<select id="segmentSelect"><option value="All">All Segments</option></select></label>
+  </div>
+</section>
+
+<section class="kpi-grid">
+  <article class="kpi"><span>NET SALES</span><strong id="kSales">—</strong><small id="kSalesGrowth">—</small></article>
+  <article class="kpi"><span>NET PROFIT</span><strong id="kProfit">—</strong><small id="kProfitGrowth">—</small></article>
+  <article class="kpi"><span>PROFIT MARGIN</span><strong id="kMargin">—</strong><small id="kMarginDelta">—</small></article>
+  <article class="kpi"><span>ORDERS</span><strong id="kOrders">—</strong><small id="kAOV">—</small></article>
+  <article class="kpi"><span>CUSTOMERS</span><strong id="kCustomers">—</strong><small id="kRepeat">—</small></article>
+  <article class="kpi"><span>AVG SHIP DAYS</span><strong id="kShipDays">—</strong><small id="kShippingCost">—</small></article>
+</section>
+
+<section class="section" id="markets"><div class="section-head"><div><span class="eyebrow">MARKET INTELLIGENCE</span><h2>Where growth and margin diverge</h2><p>Compare scale, profitability and concentration without losing the filter context.</p></div><div class="section-meta" id="marketMeta">—</div></div><div class="two-col"><article class="panel tall"><div class="panel-head"><div><h3>Market performance</h3><p>Sales and profit by market</p></div></div><canvas id="marketChart"></canvas></article><article class="panel"><div class="panel-head"><div><h3>Growth × margin matrix</h3><p>Market positioning from the selected period</p></div></div><canvas id="matrixChart"></canvas></article></div><div class="table-panel"><div class="panel-head"><div><h3>Market scorecard</h3><p>Ranked descriptively by current sales contribution</p></div></div><div class="table-scroll"><table id="marketTable"><thead><tr><th>Market</th><th>Sales</th><th>YoY</th><th>Profit</th><th>Margin</th><th>Share</th><th>Ship days</th></tr></thead><tbody></tbody></table></div></div></section>
+
+<section class="section" id="products"><div class="section-head"><div><span class="eyebrow">PRODUCT INTELLIGENCE</span><h2>Find the economics behind the basket</h2><p>Product contribution, profitability and Pareto concentration across the selected dataset.</p></div></div><div class="two-col"><article class="panel"><div class="panel-head"><div><h3>Product contribution</h3><p>Top products by sales</p></div></div><canvas id="productChart"></canvas></article><article class="panel"><div class="panel-head"><div><h3>Category economics</h3><p>Sales, profit and margin</p></div></div><canvas id="categoryChart"></canvas></article></div><div class="table-panel"><div class="panel-head"><div><h3>Pareto watchlist</h3><p>Products contributing most to sales</p></div><span class="pill" id="paretoShare">—</span></div><div class="table-scroll"><table id="productTable"><thead><tr><th>Product</th><th>Category</th><th>Sales</th><th>Profit</th><th>Margin</th><th>Units</th></tr></thead><tbody></tbody></table></div></div></section>
+
+<section class="section" id="forecast"><div class="section-head"><div><span class="eyebrow">FORECAST & SCENARIOS</span><h2>Move from reporting to planning</h2><p>Baseline trend projection plus an interactive commercial scenario simulator.</p></div></div><div class="two-col"><article class="panel tall"><div class="panel-head"><div><h3>Monthly sales trajectory</h3><p>Historical sales with 6-month linear baseline forecast</p></div><span class="pill">BASELINE</span></div><canvas id="forecastChart"></canvas></article><article class="panel scenario"><div class="panel-head"><div><h3>What-if simulator</h3><p>Adjust assumptions and see the modeled impact.</p></div></div><label>Sales change <output id="salesAssumptionOut">+10%</output><input id="salesAssumption" type="range" min="-20" max="30" value="10"></label><label>Profit conversion <output id="marginAssumptionOut">+0 pp</output><input id="marginAssumption" type="range" min="-5" max="5" value="0" step="0.5"></label><label>Discount change <output id="discountAssumptionOut">0 pp</output><input id="discountAssumption" type="range" min="-10" max="10" value="0" step="1"></label><div class="scenario-result"><div><small>PROJECTED SALES</small><strong id="scenarioSales">—</strong></div><div><small>PROJECTED PROFIT</small><strong id="scenarioProfit">—</strong></div><div><small>PROJECTED MARGIN</small><strong id="scenarioMargin">—</strong></div></div><p class="method-note">Scenario is an analytical sensitivity model, not a causal forecast.</p></article></div></section>
+
+<section class="section" id="anomalies"><div class="section-head"><div><span class="eyebrow">ANOMALY MONITOR</span><h2>Where the business deserves attention</h2><p>Flags unusual monthly sales and margin movements using transparent statistical rules.</p></div><div class="section-meta">Z-score threshold: |z| ≥ 2</div></div><div class="alert-grid"><article class="alert-card"><span>SALES ANOMALIES</span><strong id="salesAnomalyCount">—</strong><small>months flagged</small></article><article class="alert-card"><span>MARGIN ANOMALIES</span><strong id="marginAnomalyCount">—</strong><small>months flagged</small></article><article class="alert-card"><span>NEGATIVE-PROFIT LINES</span><strong id="lossLines">—</strong><small>transaction lines</small></article><article class="alert-card"><span>DISCOUNT EXPOSURE</span><strong id="discountExposure">—</strong><small>sales under discount</small></article></div><div class="table-panel"><div class="panel-head"><div><h3>Anomaly watchlist</h3><p>Largest absolute deviations in the selected period</p></div></div><div class="table-scroll"><table id="anomalyTable"><thead><tr><th>Month</th><th>Metric</th><th>Actual</th><th>Baseline</th><th>Z-score</th><th>Signal</th></tr></thead><tbody></tbody></table></div></div></section>
+
+<section class="section" id="explorer"><div class="section-head"><div><span class="eyebrow">DATA EXPLORER</span><h2>Inspect the underlying business records</h2><p>Search, sort, paginate and export the currently filtered data.</p></div><div class="explorer-actions"><input id="searchInput" placeholder="Search order, customer, product, country…"><button class="btn ghost" id="exportData">Export filtered CSV</button></div></div><div class="table-panel"><div class="table-scroll"><table id="dataTable"><thead><tr><th>Order date</th><th>Order ID</th><th>Customer</th><th>Market</th><th>Country</th><th>Category</th><th>Product</th><th>Sales</th><th>Profit</th><th>Margin</th></tr></thead><tbody></tbody></table></div><div class="pagination"><span id="pageInfo">—</span><div><button class="btn ghost small" id="prevPage">←</button><button class="btn ghost small" id="nextPage">→</button></div></div></div></section>
+
+<section class="section decision-section"><div class="section-head"><div><span class="eyebrow">DECISION BRIEF</span><h2>Automatically generated business readout</h2><p>Evidence-based observations from the current filter context.</p></div></div><div class="decision-grid"><article><span>01 · GROWTH</span><h3 id="decisionGrowthTitle">—</h3><p id="decisionGrowth">—</p></article><article><span>02 · PROFITABILITY</span><h3 id="decisionProfitTitle">—</h3><p id="decisionProfit">—</p></article><article><span>03 · CONCENTRATION</span><h3 id="decisionConcentrationTitle">—</h3><p id="decisionConcentration">—</p></article><article><span>04 · OPERATIONS</span><h3 id="decisionOpsTitle">—</h3><p id="decisionOps">—</p></article></div></section>
+</main>
+<footer><div><strong>Global Retail Intelligence</strong><span>Production-style analytics portfolio · SQL · Python · Power BI · JavaScript</span></div><div><span>Data source: Global Superstore cleaned dataset</span><span id="footerRows">—</span></div></footer>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
